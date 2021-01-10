@@ -1,31 +1,39 @@
-# BentoBox
+# BoringSolidity
 
-[![Coverage Status](https://coveralls.io/repos/github/sushiswap/bentobox/badge.svg?branch=master)](https://coveralls.io/github/sushiswap/bentobox?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/bartjman/BoringSolidity/badge.svg?branch=master)](https://coveralls.io/github/bartjman/BoringSolidity?branch=master)
 
-Platforms like Compound and Aave allow users to deposit assets as collateral and borrow other assets against this. These protocols have attracted billions of dollars, but they suffer from some major limitations. Taking away these limitations could see much larger adoption. BentoBox aims to do just that.
+BoringSolidity is a collection of general purpose Solidity contracts that have been reasonably optimized, reviewed and tested. Still, they come with no guarantees and are provided as-is.
 
-We solve these issues by having a platform with:
+## BoringMath Library
 
-- Isolated lending pairs. Anyone can create a pair, it’s up to users which pairs they find safe enough. Risk is isolated to just that pair.
-- Flexible oracles, both on-chain and off-chain.
-  Liquid interest rates based on a specific target utilization range, such as 70-80%.
-- Contracts optimized for low gas.
-- The supplied assets can be used for flash loans, providing extra revenue for suppliers.
+Once we can move to Solidity 0.8.0 we won't need this anymore, but until then, this library helps protect against over and under flows. Also contains some support for uint128.
 
-## Docs
+There is no div function because never solidity versions will revert on a division by 0.
 
-[Development](docs/DEVELOPMENT.md)
+BoringMath128 does not contain a `mul` function on purpose. To avoid overflows during calculations, it's encouraged to convert to uint256 first.
 
-[Deployment](docs/DEPLOYMENT.md)
+## BoringOwnable
 
-## Security
-Audits are being performed by Quantstamp and Peckshield
+This is a combination of the well known Ownable and Claimable patterns. It's streamlined to reduce the amoutn of functions exposed for gas savings.
 
-We use [Slither](https://github.com/crytic/slither) for static analysis. Reports and comments are here:
+## BoringERC20
 
-[BentoBox.sol](docs/Slither_BentoBox.md)
+This is not a full ERC20 implementation, as it's missing totalSupply. It's optimized for minimal gas usage while remaining easy to read.
 
+## BoringFactory
+
+Simple universal factory to create minimal proxies from masterContracts.
+
+## BoringBatchable
+
+Extension to be added to any contract to allow calling multiple functions on the contract in a batch (a single EOA call). 
+The EIP 2612 permit proxy function is included because it's common to approve spending before calling other functions on a contract.
+
+## BoringRebase
+
+The Rebase struct and RebaseLibary make it easy to track amounts and shares in a single storage slot. This will limit amounts and shares to 128 bits,
+but if used for token balances, this should be enough for pretty much all tokens that have real use.
 
 ## Licence
 
-UNLICENCED
+MIT
