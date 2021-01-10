@@ -1,4 +1,4 @@
-const { ADDRESS_ZERO } = require(".")
+const { ADDRESS_ZERO, addr } = require(".")
 
 class BoringOwnable {
     constructor(hardhat) {

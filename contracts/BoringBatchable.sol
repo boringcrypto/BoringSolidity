@@ -9,17 +9,7 @@ pragma experimental ABIEncoderV2;
 import "./libraries/BoringERC20.sol";
 
 // T1 - T4: OK
-contract BoringBatchable {
-    // F1 - F9: OK
-    // F6: Parameters can be used front-run the permit and the user's permit will fail (due to nonce or other revert)
-    //     if part of a batch this could be used to grief once as the second call would not need the permit
-    // C1 - C21: OK
-    function permit(IERC20 token, address from, address to, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
-        // Interactions
-        // X1 - X5
-        token.permit(from, to, amount, deadline, v, r, s);
-    }
-
+contract BaseBoringBatchable {
     // F3 - F9: OK
     // F1: External is ok here because this is the batch function, adding it to a batch makes no sense
     // F2: Calls in the batch may be payable, delegatecall operates in the same context, so each call in the batch has access to msg.value
@@ -36,5 +26,18 @@ contract BoringBatchable {
             successes[i] = success;
             results[i] = result;
         }
+    }
+}
+
+// T1 - T4: OK
+contract BoringBatchable is BaseBoringBatchable {
+    // F1 - F9: OK
+    // F6: Parameters can be used front-run the permit and the user's permit will fail (due to nonce or other revert)
+    //     if part of a batch this could be used to grief once as the second call would not need the permit
+    // C1 - C21: OK
+    function permit(IERC20 token, address from, address to, uint256 amount, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
+        // Interactions
+        // X1 - X5
+        token.permit(from, to, amount, deadline, v, r, s);
     }
 }
