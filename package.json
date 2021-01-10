@@ -1,9 +1,8 @@
 {
-  "name": "@sushiswap/bentobox",
+  "name": "@bartjman/boring-solidity",
   "version": "1.0.0",
-  "private": true,
-  "description": "BentoBox",
-  "main": "index.js",
+  "private": false,
+  "description": "BoringSolidity",
   "directories": {
     "test": "test"
   },
@@ -28,14 +27,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sushiswap/bentobox.git"
+    "url": "git+https://github.com/bartjman/BoringSolidity.git"
   },
   "author": "",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sushiswap/bentobox/issues"
+    "url": "https://github.com/bartjman/BoringSolidity/issues"
   },
-  "homepage": "https://github.com/sushiswap/bentobox#readme",
+  "homepage": "https://github.com/bartjman/BoringSolidity#readme",
   "devDependencies": {
     "@codechecks/client": "^0.1.10",
     "@nomiclabs/hardhat-ethers": "^2.0.1",
