@@ -9,16 +9,24 @@ contract MockBoringRebase {
     using RebaseLibrary for Rebase;
     Rebase public total;
 
-    function set(uint256 amount, uint256 share) public {
-        total.amount = amount.to128();
-        total.share = share.to128();
+    function set(uint256 elastic, uint256 base) public {
+        total.elastic = elastic.to128();
+        total.base = base.to128();
     }
 
-    function toShare(uint256 amount) public view returns (uint256 share) {
-        share = total.toShare(amount);
+    function toBase(uint256 elastic) public view returns (uint256 base) {
+        base = total.toBase(elastic);
     }
 
-    function toAmount(uint256 share) public view returns (uint256 amount) {
-        amount = total.toAmount(share);
+    function toElastic(uint256 base) public view returns (uint256 elastic) {
+        elastic = total.toElastic(base);
+    }
+
+    function add(uint256 elastic) public returns (uint256 base) {
+        (total, base) = total.add(elastic);
+    }
+
+    function sub(uint256 base) public returns (uint256 elastic) {
+        (total, elastic) = total.sub(base);
     }
 }
