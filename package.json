@@ -1,5 +1,5 @@
 {
-  "name": "@bartjman/boring-solidity",
+  "name": "@boringcrypto/boring-solidity",
   "version": "1.0.1",
   "private": false,
   "description": "BoringSolidity",
@@ -30,14 +30,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bartjman/BoringSolidity.git"
+    "url": "git+https://github.com/boringcrypto/BoringSolidity.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bartjman/BoringSolidity/issues"
+    "url": "https://github.com/boringcrypto/BoringSolidity/issues"
   },
-  "homepage": "https://github.com/bartjman/BoringSolidity#readme",
+  "homepage": "https://github.com/boringcrypto/BoringSolidity#readme",
   "devDependencies": {
     "@codechecks/client": "^0.1.10",
     "@nomiclabs/hardhat-ethers": "^2.0.1",

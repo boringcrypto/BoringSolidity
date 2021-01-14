@@ -1,6 +1,6 @@
 # BoringSolidity
 
-[![Coverage Status](https://coveralls.io/repos/github/bartjman/BoringSolidity/badge.svg?branch=master)](https://coveralls.io/github/bartjman/BoringSolidity?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/boringcrypto/BoringSolidity/badge.svg?branch=master)](https://coveralls.io/github/boringcrypto/BoringSolidity?branch=master)
 
 BoringSolidity is a collection of general purpose Solidity contracts that have been reasonably optimized, reviewed and tested. Still, they come with no guarantees and are provided as-is.
 
