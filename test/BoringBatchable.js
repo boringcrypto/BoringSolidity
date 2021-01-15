@@ -55,7 +55,7 @@ describe("BoringBatchable", function () {
         this.bob.provider._network.chainId
       )
       const { v, r, s } = ecsign(Buffer.from(digest.slice(2), "hex"), Buffer.from(this.alicePrivateKey.replace("0x", ""), "hex"))
-      await this.contract["permit(address,address,address,uint256,uint256,uint8,bytes32,bytes32)"](this.contract.address, this.alice.address, this.bob.address, 1, deadline, v, r, s)
+      await this.contract.permitToken(this.contract.address, this.alice.address, this.bob.address, 1, deadline, v, r, s)
     })
   })
 })

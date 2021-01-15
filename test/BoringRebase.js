@@ -58,4 +58,11 @@ describe("BoringRebase", function () {
     expect(total.elastic).to.equal(100);
     expect(total.base).to.equal(100);
   })
+
+  it("Adds just elastic correctly when empty", async function () {
+    await this.contract.addElastic(50);
+    const total = await this.contract.total();
+    expect(total.elastic).to.equal(150);
+    expect(total.base).to.equal(100);
+  })
 })

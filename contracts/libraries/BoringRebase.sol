@@ -32,4 +32,8 @@ library RebaseLibrary {
         total.base = total.base.sub(base.to128());
         return (total, elastic);
     }
+
+    function addElastic(Rebase storage total, uint256 elastic) internal returns(uint256 newElastic) {
+        newElastic = total.elastic = total.elastic.add(elastic.to128());
+    }
 }

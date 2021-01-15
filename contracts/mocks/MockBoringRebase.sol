@@ -29,4 +29,10 @@ contract MockBoringRebase {
     function sub(uint256 base) public returns (uint256 elastic) {
         (total, elastic) = total.sub(base);
     }
+
+    function addElastic(uint256 elastic) public returns (uint256 newElastic) {
+        newElastic = total.addElastic(elastic);
+        require(newElastic == 150, "MockBoringRebase: test failed");
+    }
+
 }
