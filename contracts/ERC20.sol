@@ -31,7 +31,12 @@ contract ERC20 is ERC20Data {
         // The following check is pretty much in all ERC20 contracts, but this can only fail if totalSupply >= 2^256
         require(balanceOf[to] + amount >= balanceOf[to], "ERC20: overflow detected");
         balanceOf[from] -= amount;
-        allowance[from][msg.sender] -= amount;
+        uint256 spenderAllowance = allowance[from][msg.sender];
+        // If allowance is infinite, don't decrease it to save on gas.
+        if (spenderAllowance != type(uint256).max) {
+            allowance[from][msg.sender] = spenderAllowance - amount;
+            emit Approval(msg.sender, msg.sender, amount);
+        }
         balanceOf[to] += amount;
         emit Transfer(from, to, amount);
         return true;
