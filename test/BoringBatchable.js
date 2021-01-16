@@ -26,7 +26,7 @@ describe("BoringBatchable", function () {
     await expect(this.contract.batch([
       this.contract.interface.encodeFunctionData("transfer", [this.bob.address, 100]),
       this.contract.interface.encodeFunctionData("transfer", [this.carol.address, 20000])
-    ], true)).to.revertedWith("BoringBatchable: Tx failed");
+    ], true)).to.revertedWith("ERC20: balance too low");
   })
 
   it("Batch of 2 transfers succeeds even though one tx fails", async function () {

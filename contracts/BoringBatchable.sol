@@ -10,6 +10,17 @@ import "./libraries/BoringERC20.sol";
 
 // T1 - T4: OK
 contract BaseBoringBatchable {
+    function _getRevertMsg(bytes memory _returnData) internal pure returns (string memory) {
+        // If the _res length is less than 68, then the transaction failed silently (without a revert message)
+        if (_returnData.length < 68) return "Transaction reverted silently";
+
+        assembly {
+            // Slice the sighash.
+            _returnData := add(_returnData, 0x04)
+        }
+        return abi.decode(_returnData, (string)); // All that remains is the revert string
+    }    
+    
     // F3 - F9: OK
     // F1: External is ok here because this is the batch function, adding it to a batch makes no sense
     // F2: Calls in the batch may be payable, delegatecall operates in the same context, so each call in the batch has access to msg.value
@@ -22,7 +33,7 @@ contract BaseBoringBatchable {
         results = new bytes[](calls.length);
         for (uint256 i = 0; i < calls.length; i++) {
             (bool success, bytes memory result) = address(this).delegatecall(calls[i]);
-            require(success || !revertOnFail, "BoringBatchable: Tx failed");
+            require(success || !revertOnFail, _getRevertMsg(result));
             successes[i] = success;
             results[i] = result;
         }
