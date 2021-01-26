@@ -8,10 +8,12 @@ contract BoringFactory {
     event LogDeploy(address indexed masterContract, bytes data, address indexed cloneAddress);
 
     mapping(address => address) public masterContractOf; // Mapping from clone contracts to their masterContract
+    
+    address private constant ZERO_ADDRESS = address(0);
 
     // Deploys a given master Contract as a clone.
     function deploy(address masterContract, bytes calldata data) public payable {
-        require(masterContract != address(0), "BoringFactory: No masterContract");
+        require(masterContract != ZERO_ADDRESS, "BoringFactory: No masterContract");
         bytes20 targetBytes = bytes20(masterContract); // Takes the first 20 bytes of the masterContract's address
         address cloneAddress; // Address where the clone contract will reside.
 

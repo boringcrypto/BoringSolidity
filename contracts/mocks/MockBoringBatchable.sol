@@ -2,6 +2,8 @@
 
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
+// solhint-disable no-empty-blocks
+
 import "../BoringBatchable.sol";
 import "./MockERC20.sol";
 

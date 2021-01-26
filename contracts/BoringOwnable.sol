@@ -20,9 +20,11 @@ contract BoringOwnable is BoringOwnableData {
     // E1: OK
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
+    address private constant ZERO_ADDRESS = address(0);
+
     constructor () public {
         owner = msg.sender;
-        emit OwnershipTransferred(address(0), msg.sender);
+        emit OwnershipTransferred(ZERO_ADDRESS, msg.sender);
     }
 
     // F1 - F9: OK
@@ -30,12 +32,12 @@ contract BoringOwnable is BoringOwnableData {
     function transferOwnership(address newOwner, bool direct, bool renounce) public onlyOwner {
         if (direct) {
             // Checks
-            require(newOwner != address(0) || renounce, "Ownable: zero address");
+            require(newOwner != ZERO_ADDRESS || renounce, "Ownable: zero address");
 
             // Effects
             emit OwnershipTransferred(owner, newOwner);
             owner = newOwner;
-            pendingOwner = address(0);
+            pendingOwner = ZERO_ADDRESS;
         } else {
             // Effects
             pendingOwner = newOwner;
@@ -53,7 +55,7 @@ contract BoringOwnable is BoringOwnableData {
         // Effects
         emit OwnershipTransferred(owner, _pendingOwner);
         owner = _pendingOwner;
-        pendingOwner = address(0);
+        pendingOwner = ZERO_ADDRESS;
     }
 
     // M1 - M5: OK

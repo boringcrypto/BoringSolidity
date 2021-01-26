@@ -5,6 +5,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 // solhint-disable avoid-low-level-calls
+// solhint-disable no-inline-assembly
 
 import "./libraries/BoringERC20.sol";
 
