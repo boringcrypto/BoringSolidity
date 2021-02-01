@@ -14,25 +14,38 @@ contract MockBoringRebase {
         total.base = base.to128();
     }
 
-    function toBase(uint256 elastic) public view returns (uint256 base) {
-        base = total.toBase(elastic);
+    function toBase(uint256 elastic, bool roundUp) public view returns (uint256 base) {
+        base = total.toBase(elastic, roundUp);
     }
 
-    function toElastic(uint256 base) public view returns (uint256 elastic) {
-        elastic = total.toElastic(base);
+    function toElastic(uint256 base, bool roundUp) public view returns (uint256 elastic) {
+        elastic = total.toElastic(base, roundUp);
     }
 
-    function add(uint256 elastic) public returns (uint256 base) {
-        (total, base) = total.add(elastic);
+    function add(uint256 elastic, bool roundUp) public returns (uint256 base) {
+        (total, base) = total.add(elastic, roundUp);
     }
 
-    function sub(uint256 base) public returns (uint256 elastic) {
-        (total, elastic) = total.sub(base);
+    function sub(uint256 base, bool roundUp) public returns (uint256 elastic) {
+        (total, elastic) = total.sub(base, roundUp);
+    }
+
+    function add2(uint256 base, uint256 elastic) public {
+        total = total.add(base, elastic);
+    }
+
+    function sub2(uint256 base, uint256 elastic) public {
+        total = total.sub(base, elastic);
     }
 
     function addElastic(uint256 elastic) public returns (uint256 newElastic) {
         newElastic = total.addElastic(elastic);
         require(newElastic == 150, "MockBoringRebase: test failed");
+    }
+
+    function subElastic(uint256 elastic) public returns (uint256 newElastic) {
+        newElastic = total.subElastic(elastic);
+        require(newElastic == 110, "MockBoringRebase: test failed");
     }
 
 }
