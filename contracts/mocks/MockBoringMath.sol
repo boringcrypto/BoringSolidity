@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.6.12;
 import "../libraries/BoringMath.sol";
 
@@ -56,5 +55,4 @@ contract MockBoringMath {
     function sub32(uint32 a, uint32 b) public pure returns (uint32 c) {
         c = a.sub(b);
     }
-
 }

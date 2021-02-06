@@ -75,7 +75,7 @@ describe("BoringRebase", function () {
         expect(await this.contract.toElastic(1, true)).to.equal(3)
         expect(await this.contract.toElastic(0, false)).to.equal(0)
         expect(await this.contract.toElastic(0, true)).to.equal(0)
-    })    
+    })
 
     it("Remove both correctly", async function () {
         await this.contract.sub2(1189, 512)

@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity 0.6.12;
 import "../libraries/BoringMath.sol";
 import "../libraries/BoringRebase.sol";
@@ -47,5 +46,4 @@ contract MockBoringRebase {
         newElastic = total.subElastic(elastic);
         require(newElastic == 110, "MockBoringRebase: test failed");
     }
-
 }

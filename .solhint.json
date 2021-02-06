@@ -2,13 +2,15 @@
   "extends": "solhint:recommended",
   "plugins": ["prettier"],
   "rules": {
+    "func-visibility": ["error",{"ignoreConstructors":false}],
+    "avoid-throw": "error",
     "avoid-suicide": "error",
     "avoid-sha3": "warn",
     "compiler-version": "off",
     "max-states-count": ["error", 18],
     "max-line-length": ["warn", 145],
     "not-rely-on-time": "warn",
-    "quotes": ["warn","double"],
-    "prettier/prettier": "off"
+    "quotes": ["error","double"],
+    "prettier/prettier": "on"
   }
 }
