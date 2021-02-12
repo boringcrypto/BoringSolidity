@@ -43,8 +43,10 @@ contract ERC20 is ERC20Data {
         uint256 dstNewBalance = dst + amount;
         // The following check is pretty much in all ERC20 contracts, but this can only fail if totalSupply >= 2^256
         require(dstNewBalance >= dst, "ERC20: overflow detected");
-        balanceOf[to] = dstNewBalance;
-        balanceOf[msg.sender] = src - amount;
+        if (msg.sender != to) {
+            balanceOf[to] = dstNewBalance;
+            balanceOf[msg.sender] = src - amount;
+        }
 
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -77,8 +79,11 @@ contract ERC20 is ERC20Data {
         uint256 dstBalanceNew = dstBalance + amount;
         // The following check is pretty much in all ERC20 contracts, but this can only fail if totalSupply >= 2^256
         require(dstBalanceNew >= dstBalance, "ERC20: overflow detected");
-        balanceOf[to] = dstBalanceNew;
-        balanceOf[from] = srcBalance - amount;
+
+        if (from != to) {
+            balanceOf[to] = dstBalanceNew;
+            balanceOf[from] = srcBalance - amount;
+        }
 
         emit Transfer(from, to, amount);
         return true;
