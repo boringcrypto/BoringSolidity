@@ -6,8 +6,11 @@ pragma solidity 0.6.12;
 
 // Data part taken out for building of contracts that receive delegate calls
 contract ERC20Data {
+    /// @notice owner > balance mapping.
     mapping(address => uint256) public balanceOf;
+    /// @notice owner > spender > allowance mapping.
     mapping(address => mapping(address => uint256)) public allowance;
+    /// @notice owner > nonce mapping. Used in `permit`.
     mapping(address => uint256) public nonces;
 }
 
@@ -26,40 +29,66 @@ contract ERC20 is ERC20Data {
         DOMAIN_SEPARATOR = keccak256(abi.encode(keccak256("EIP712Domain(uint256 chainId,address verifyingContract)"), chainId, address(this)));
     }
 
-    function transfer(address to, uint256 amount) public returns (bool success) {
+    /// @notice Transfers `amount` tokens from `msg.sender` to `to`.
+    /// @param to The address to move the tokens.
+    /// @param amount of the tokens to move.
+    /// @return (bool) Returns True if succeeded.
+    function transfer(address to, uint256 amount) public returns (bool) {
         require(to != address(0), "ERC20: no zero address");
-        require(balanceOf[msg.sender] >= amount, "ERC20: balance too low");
+
+        uint256 src = balanceOf[msg.sender];
+        require(src >= amount, "ERC20: balance too low");
+
+        uint256 dst = balanceOf[to];
+        uint256 dstNewBalance = dst + amount;
         // The following check is pretty much in all ERC20 contracts, but this can only fail if totalSupply >= 2^256
-        require(balanceOf[to] + amount >= balanceOf[to], "ERC20: overflow detected");
-        balanceOf[msg.sender] -= amount;
-        balanceOf[to] += amount;
+        require(dstNewBalance >= dst, "ERC20: overflow detected");
+        balanceOf[to] = dstNewBalance;
+        balanceOf[msg.sender] = src - amount;
+
         emit Transfer(msg.sender, to, amount);
         return true;
     }
 
+    /// @notice Transfers `amount` tokens from `from` to `to`. Caller needs approval for `from`.
+    /// @param from Address to draw tokens from.
+    /// @param to The address to move the tokens.
+    /// @param amount The token amount to move.
+    /// @return (bool) Returns True if succeeded.
     function transferFrom(
         address from,
         address to,
         uint256 amount
-    ) public returns (bool success) {
+    ) public returns (bool) {
         require(to != address(0), "ERC20: no zero address");
-        require(balanceOf[from] >= amount, "ERC20: balance too low");
-        require(allowance[from][msg.sender] >= amount, "ERC20: allowance too low");
-        // The following check is pretty much in all ERC20 contracts, but this can only fail if totalSupply >= 2^256
-        require(balanceOf[to] + amount >= balanceOf[to], "ERC20: overflow detected");
-        balanceOf[from] -= amount;
+
+        uint256 srcBalance = balanceOf[from];
+        require(srcBalance >= amount, "ERC20: balance too low");
+
         uint256 spenderAllowance = allowance[from][msg.sender];
+        require(spenderAllowance >= amount, "ERC20: allowance too low");
         // If allowance is infinite, don't decrease it to save on gas.
         if (spenderAllowance != type(uint256).max) {
             allowance[from][msg.sender] = spenderAllowance - amount;
             emit Approval(msg.sender, msg.sender, amount);
         }
-        balanceOf[to] += amount;
+
+        uint256 dstBalance = balanceOf[to];
+        uint256 dstBalanceNew = dstBalance + amount;
+        // The following check is pretty much in all ERC20 contracts, but this can only fail if totalSupply >= 2^256
+        require(dstBalanceNew >= dstBalance, "ERC20: overflow detected");
+        balanceOf[to] = dstBalanceNew;
+        balanceOf[from] = srcBalance - amount;
+
         emit Transfer(from, to, amount);
         return true;
     }
 
-    function approve(address spender, uint256 amount) public returns (bool success) {
+    /// @notice Approves `amount` from sender to be spend by `spender`.
+    /// @param spender Address of the party that can draw from msg.sender's account.
+    /// @param amount The maximum collective amount that `spender` can draw.
+    /// @return (bool) Returns True if approved.
+    function approve(address spender, uint256 amount) public returns (bool) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
@@ -70,6 +99,11 @@ contract ERC20 is ERC20Data {
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 private constant PERMIT_SIGNATURE_HASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
 
+    /// @notice Approves `value` from `owner_` to be spend by `spender`.
+    /// @param owner_ Address of the owner.
+    /// @param spender The address of the spender that gets approved to draw from `owner_`.
+    /// @param value The maximum collective amount that `spender` can draw.
+    /// @param deadline This permit must be redeemed before this deadline (UTC timestamp in seconds).
     function permit(
         address owner_,
         address spender,
