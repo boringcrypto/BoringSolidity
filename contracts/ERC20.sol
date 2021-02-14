@@ -35,13 +35,15 @@ contract ERC20 is ERC20Data {
     /// @return (bool) Returns True if succeeded.
     function transfer(address to, uint256 amount) public returns (bool) {
         // If `amount` is 0, or `msg.sender` is `to` nothing happens
-        if (amount != 0 && msg.sender != to) {
+        if (amount != 0) {
             uint256 srcBalance = balanceOf[msg.sender];
             require(srcBalance >= amount, "ERC20: balance too low");
-            require(to != address(0), "ERC20: no zero address"); // Moved down so low balance calls safe some gas
+            if (msg.sender != to) {
+                require(to != address(0), "ERC20: no zero address"); // Moved down so low balance calls safe some gas
 
-            balanceOf[msg.sender] = srcBalance - amount; // Underflow is checked
-            balanceOf[to] += amount; // Can't overflow because totalSupply would be greater than 2^256-1
+                balanceOf[msg.sender] = srcBalance - amount; // Underflow is checked
+                balanceOf[to] += amount; // Can't overflow because totalSupply would be greater than 2^256-1
+            }
         }
         emit Transfer(msg.sender, to, amount);
         return true;
@@ -58,20 +60,22 @@ contract ERC20 is ERC20Data {
         uint256 amount
     ) public returns (bool) {
         // If `amount` is 0, or `from` is `to` nothing happens
-        if (amount != 0 && from != to) {
+        if (amount != 0) {
             uint256 srcBalance = balanceOf[from];
             require(srcBalance >= amount, "ERC20: balance too low");
 
-            uint256 spenderAllowance = allowance[from][msg.sender];
-            // If allowance is infinite, don't decrease it to save on gas (breaks with EIP-20).
-            if (spenderAllowance != type(uint256).max) {
-                require(spenderAllowance >= amount, "ERC20: allowance too low");
-                allowance[from][msg.sender] = spenderAllowance - amount; // Overflow is checked
-            }
-            require(to != address(0), "ERC20: no zero address"); // Moved down so other failed calls safe some gas
+            if (from != to) {
+                uint256 spenderAllowance = allowance[from][msg.sender];
+                // If allowance is infinite, don't decrease it to save on gas (breaks with EIP-20).
+                if (spenderAllowance != type(uint256).max) {
+                    require(spenderAllowance >= amount, "ERC20: allowance too low");
+                    allowance[from][msg.sender] = spenderAllowance - amount; // Underflow is checked
+                }
+                require(to != address(0), "ERC20: no zero address"); // Moved down so other failed calls safe some gas
 
-            balanceOf[from] = srcBalance - amount; // Underflow is checked
-            balanceOf[to] += amount; // Can't overflow because totalSupply would be greater than 2^256-1
+                balanceOf[from] = srcBalance - amount; // Underflow is checked
+                balanceOf[to] += amount; // Can't overflow because totalSupply would be greater than 2^256-1
+            }
         }
         emit Transfer(from, to, amount);
         return true;
