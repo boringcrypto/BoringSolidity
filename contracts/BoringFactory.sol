@@ -16,15 +16,14 @@ contract BoringFactory {
     /// @param masterContract The address of the contract to clone.
     /// @param data Additional abi encoded calldata that is passed to the new clone via `IMasterContract.init`.
     /// @param useCreate2 Creates the clone by using the CREATE2 opcode, in this case `data` will be used as salt.
-    // XXX: Return the new clone address? / Should it also return the new address of the clone for better composability?
+    /// @return cloneAddress Address of the created clone contract.
     function deploy(
         address masterContract,
         bytes calldata data,
         bool useCreate2
-    ) public payable {
+    ) public payable returns (address cloneAddress) {
         require(masterContract != address(0), "BoringFactory: No masterContract");
         bytes20 targetBytes = bytes20(masterContract); // Takes the first 20 bytes of the masterContract's address
-        address cloneAddress; // Address where the clone contract will reside.
 
         if (useCreate2) {
             // each masterContract has different code already. So clones are distinguished by their data only.
