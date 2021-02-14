@@ -15,11 +15,17 @@ contract BoringOwnable is BoringOwnableData {
 
     address private constant ZERO_ADDRESS = address(0);
 
+    /// @notice `owner` defaults to msg.sender on construction.
     constructor() public {
         owner = msg.sender;
         emit OwnershipTransferred(ZERO_ADDRESS, msg.sender);
     }
 
+    /// @notice Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner.
+    /// Can only be invoked by the current `owner`.
+    /// @param newOwner Address of the new owner.
+    /// @param direct True if `newOwner` should be set immediately. False if `newOwner` needs to use `claimOwnership`.
+    /// @param renounce Allows the `newOwner` to be `address(0)` if `direct` and `renounce` is True. Has no effect otherwise.
     function transferOwnership(
         address newOwner,
         bool direct,
@@ -39,6 +45,7 @@ contract BoringOwnable is BoringOwnableData {
         }
     }
 
+    /// @notice Needs to be called by `pendingOwner` to claim ownership.
     function claimOwnership() public {
         address _pendingOwner = pendingOwner;
 
@@ -51,6 +58,7 @@ contract BoringOwnable is BoringOwnableData {
         pendingOwner = ZERO_ADDRESS;
     }
 
+    /// @notice Only allows the `owner` to execute the function.
     modifier onlyOwner() {
         require(msg.sender == owner, "Ownable: caller is not the owner");
         _;

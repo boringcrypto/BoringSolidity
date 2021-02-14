@@ -7,9 +7,16 @@ import "./interfaces/IMasterContract.sol";
 contract BoringFactory {
     event LogDeploy(address indexed masterContract, bytes data, address indexed cloneAddress);
 
-    mapping(address => address) public masterContractOf; // Mapping from clone contracts to their masterContract
+    /// @notice Mapping from clone contracts to their masterContract.
+    mapping(address => address) public masterContractOf;
 
-    // Deploys a given master Contract as a clone.
+    /// @notice Deploys a given master Contract as a clone.
+    /// Any ETH transferred with this call is forwarded to the new clone.
+    /// Emits `LogDeploy`.
+    /// @param masterContract The address of the contract to clone.
+    /// @param data Additional abi encoded calldata that is passed to the new clone via `IMasterContract.init`.
+    /// @param useCreate2 Creates the clone by using the CREATE2 opcode, in this case `data` will be used as salt.
+    // XXX: Return the new clone address? / Should it also return the new address of the clone for better composability?
     function deploy(
         address masterContract,
         bytes calldata data,

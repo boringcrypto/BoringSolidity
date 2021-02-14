@@ -59,6 +59,16 @@ describe("ERC20", function () {
             ).to.be.revertedWith("ERC20: overflow detected")
         })
 
+        it("transfering tokens from alice to alice", async function () {
+            await expect(
+                () => this.token.transfer(this.alice.address, "1000")
+            ).to.changeTokenBalances(
+                this.token,
+                [this.alice, this.alice],
+                [0, 0]
+            )
+        })
+
         it("Succeeds for zero value transfer", async function () {
             await expect(() => this.token.transfer(this.bob.address, 0)).to.changeTokenBalances(this.token, [this.alice, this.bob], [-0, 0])
         })
@@ -81,7 +91,7 @@ describe("ERC20", function () {
             await expect(this.token.transferFrom(this.alice.address, this.bob.address, 10001)).to.be.revertedWith("ERC20: balance too low")
         })
 
-        it("transferFrom should fail if balance is too low", async function () {
+        it("transferFrom should fail to address zero", async function () {
             await expect(this.token.transferFrom(this.alice.address, ADDRESS_ZERO, 10)).to.be.revertedWith("ERC20: no zero address")
         })
 
@@ -96,6 +106,17 @@ describe("ERC20", function () {
                     "115792089237316195423570985008687907853269984665640564039457584007913129639935"
                 )
             ).to.be.revertedWith("ERC20: overflow detected")
+        })
+
+        it("transfering tokens from alice to alice", async function () {
+            await this.token.approve(this.alice.address, 1000)
+            await expect(
+                () => this.token.transferFrom(this.alice.address, this.alice.address, "1000")
+            ).to.changeTokenBalances(
+                this.token,
+                [this.alice, this.alice],
+                [0, 0]
+            )
         })
     })
 

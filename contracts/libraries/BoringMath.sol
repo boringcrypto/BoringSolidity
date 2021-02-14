@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
 
-// a library for performing overflow-safe math, updated with awesomeness from of DappHub (https://github.com/dapphub/ds-math)
+/// @notice A library for performing overflow-/underflow-safe math,
+/// updated with awesomeness from of DappHub (https://github.com/dapphub/ds-math).
 library BoringMath {
     function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
         require((c = a + b) >= b, "BoringMath: Add Overflow");
@@ -31,6 +32,7 @@ library BoringMath {
     }
 }
 
+/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint128.
 library BoringMath128 {
     function add(uint128 a, uint128 b) internal pure returns (uint128 c) {
         require((c = a + b) >= b, "BoringMath: Add Overflow");
@@ -41,6 +43,7 @@ library BoringMath128 {
     }
 }
 
+/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint64.
 library BoringMath64 {
     function add(uint64 a, uint64 b) internal pure returns (uint64 c) {
         require((c = a + b) >= b, "BoringMath: Add Overflow");
@@ -51,6 +54,7 @@ library BoringMath64 {
     }
 }
 
+/// @notice A library for performing overflow-/underflow-safe addition and subtraction on uint32.
 library BoringMath32 {
     function add(uint32 a, uint32 b) internal pure returns (uint32 c) {
         require((c = a + b) >= b, "BoringMath: Add Overflow");
