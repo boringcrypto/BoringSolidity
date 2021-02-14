@@ -113,6 +113,20 @@ describe("ERC20", function () {
                 [0, 0]
             )
         })
+
+        it("transfering tokens from alice to bob", async function () {
+            await this.token.approve(this.alice.address, 1000)
+            await expect(() => this.token.transferFrom(this.alice.address, this.bob.address, "1000")).to.changeTokenBalances(
+                this.token,
+                [this.alice, this.bob],
+                [-1000, 1000]
+            )
+        })
+
+        it("transfering 0 tokens from alice to bob", async function () {
+            await this.token.approve(this.alice.address, 1000)
+            await this.token.transferFrom(this.alice.address, this.bob.address, "0")
+        })
     })
 
     describe("Approve", function () {
