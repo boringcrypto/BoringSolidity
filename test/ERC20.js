@@ -59,9 +59,7 @@ describe("ERC20", function () {
         })
 
         it("transfering tokens from alice to alice", async function () {
-            await expect(
-                () => this.token.transfer(this.alice.address, "1000")
-            ).to.changeTokenBalances(
+            await expect(() => this.token.transfer(this.alice.address, "1000")).to.changeTokenBalances(
                 this.token,
                 [this.alice, this.alice],
                 [0, 0]
@@ -101,17 +99,15 @@ describe("ERC20", function () {
             await token.deployed()
             await token.approve(this.alice.address, "115792089237316195423570985008687907853269984665640564039457584007913129639935")
             await token.transferFrom(
-                    this.alice.address,
-                    this.alice.address,
-                    "115792089237316195423570985008687907853269984665640564039457584007913129639935"
-                )
+                this.alice.address,
+                this.alice.address,
+                "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+            )
         })
 
         it("transfering tokens from alice to alice", async function () {
             await this.token.approve(this.alice.address, 1000)
-            await expect(
-                () => this.token.transferFrom(this.alice.address, this.alice.address, "1000")
-            ).to.changeTokenBalances(
+            await expect(() => this.token.transferFrom(this.alice.address, this.alice.address, "1000")).to.changeTokenBalances(
                 this.token,
                 [this.alice, this.alice],
                 [0, 0]
