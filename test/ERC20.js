@@ -51,12 +51,11 @@ describe("ERC20", function () {
             await expect(this.token.transfer(ADDRESS_ZERO, 10)).to.be.revertedWith("ERC20: no zero address")
         })
 
-        it("Fails transfering max tokens from alice to alice", async function () {
+        it("Succeeds transfering max tokens from alice to alice", async function () {
+            // Since the sender and receiver are the same, this should actually work fine (most ERC-20 tokens will fail)
             const token = await this.MockERC20.deploy("115792089237316195423570985008687907853269984665640564039457584007913129639935")
             await token.deployed()
-            await expect(
-                token.transfer(this.alice.address, "115792089237316195423570985008687907853269984665640564039457584007913129639935")
-            ).to.be.revertedWith("ERC20: overflow detected")
+            await token.transfer(this.alice.address, "115792089237316195423570985008687907853269984665640564039457584007913129639935")
         })
 
         it("transfering tokens from alice to alice", async function () {
@@ -92,20 +91,20 @@ describe("ERC20", function () {
         })
 
         it("transferFrom should fail to address zero", async function () {
+            await this.token.approve(this.alice.address, "10")
             await expect(this.token.transferFrom(this.alice.address, ADDRESS_ZERO, 10)).to.be.revertedWith("ERC20: no zero address")
         })
 
         it("Fails transferingFrom max tokens from alice to alice", async function () {
+            // Since the sender and receiver are the same, this should actually work fine (most ERC-20 tokens will fail)
             const token = await this.MockERC20.deploy("115792089237316195423570985008687907853269984665640564039457584007913129639935")
             await token.deployed()
             await token.approve(this.alice.address, "115792089237316195423570985008687907853269984665640564039457584007913129639935")
-            await expect(
-                token.transferFrom(
+            await token.transferFrom(
                     this.alice.address,
                     this.alice.address,
                     "115792089237316195423570985008687907853269984665640564039457584007913129639935"
                 )
-            ).to.be.revertedWith("ERC20: overflow detected")
         })
 
         it("transfering tokens from alice to alice", async function () {
