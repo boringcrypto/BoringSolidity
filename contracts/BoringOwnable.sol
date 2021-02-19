@@ -13,12 +13,10 @@ contract BoringOwnableData {
 contract BoringOwnable is BoringOwnableData {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-    address private constant ZERO_ADDRESS = address(0);
-
     /// @notice `owner` defaults to msg.sender on construction.
     constructor() public {
         owner = msg.sender;
-        emit OwnershipTransferred(ZERO_ADDRESS, msg.sender);
+        emit OwnershipTransferred(address(0), msg.sender);
     }
 
     /// @notice Transfers ownership to `newOwner`. Either directly or claimable by the new pending owner.
@@ -33,12 +31,12 @@ contract BoringOwnable is BoringOwnableData {
     ) public onlyOwner {
         if (direct) {
             // Checks
-            require(newOwner != ZERO_ADDRESS || renounce, "Ownable: zero address");
+            require(newOwner != address(0) || renounce, "Ownable: zero address");
 
             // Effects
             emit OwnershipTransferred(owner, newOwner);
             owner = newOwner;
-            pendingOwner = ZERO_ADDRESS;
+            pendingOwner = address(0);
         } else {
             // Effects
             pendingOwner = newOwner;
@@ -55,7 +53,7 @@ contract BoringOwnable is BoringOwnableData {
         // Effects
         emit OwnershipTransferred(owner, _pendingOwner);
         owner = _pendingOwner;
-        pendingOwner = ZERO_ADDRESS;
+        pendingOwner = address(0);
     }
 
     /// @notice Only allows the `owner` to execute the function.
