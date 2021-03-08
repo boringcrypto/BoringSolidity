@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
+import "./Domain.sol";
 
 // solhint-disable no-inline-assembly
 // solhint-disable not-rely-on-time
@@ -14,20 +15,9 @@ contract ERC20Data {
     mapping(address => uint256) public nonces;
 }
 
-contract ERC20 is ERC20Data {
+contract ERC20 is ERC20Data, Domain {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
-
-    // solhint-disable-next-line var-name-mixedcase
-    bytes32 public immutable DOMAIN_SEPARATOR;
-
-    constructor() public {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        DOMAIN_SEPARATOR = keccak256(abi.encode(keccak256("EIP712Domain(uint256 chainId,address verifyingContract)"), chainId, address(this)));
-    }
 
     /// @notice Transfers `amount` tokens from `msg.sender` to `to`.
     /// @param to The address to move the tokens.
@@ -91,8 +81,6 @@ contract ERC20 is ERC20Data {
         return true;
     }
 
-    // See https://eips.ethereum.org/EIPS/eip-191
-    string private constant EIP191_PREFIX_FOR_EIP712_STRUCTURED_DATA = "\x19\x01";
     // keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 private constant PERMIT_SIGNATURE_HASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
 
@@ -112,16 +100,9 @@ contract ERC20 is ERC20Data {
     ) external {
         require(owner_ != address(0), "ERC20: Owner cannot be 0");
         require(block.timestamp < deadline, "ERC20: Expired");
-        bytes32 digest =
-            keccak256(
-                abi.encodePacked(
-                    EIP191_PREFIX_FOR_EIP712_STRUCTURED_DATA,
-                    DOMAIN_SEPARATOR,
-                    keccak256(abi.encode(PERMIT_SIGNATURE_HASH, owner_, spender, value, nonces[owner_]++, deadline))
-                )
-            );
-        address recoveredAddress = ecrecover(digest, v, r, s);
-        require(recoveredAddress == owner_, "ERC20: Invalid Signature");
+        require(ecrecover(_getDigest(keccak256(abi.encode(
+                PERMIT_SIGNATURE_HASH, owner_, spender, value, nonces[owner_]++, deadline
+            ))), v, r, s) == owner_, "ERC20: Invalid Signature");
         allowance[owner_][spender] = value;
         emit Approval(owner_, spender, value);
     }

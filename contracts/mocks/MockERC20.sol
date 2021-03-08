@@ -11,4 +11,8 @@ contract MockERC20 is ERC20 {
         // Update total supply
         totalSupply = _initialAmount;
     }
+
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        return _domainSeparator();
+    }
 }
