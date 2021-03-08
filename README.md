@@ -14,7 +14,7 @@ BoringMath128 does not contain a `mul` function on purpose. To avoid overflows d
 
 ## BoringOwnable
 
-This is a combination of the well known Ownable and Claimable patterns. It's streamlined to reduce the amoutn of functions exposed for gas savings.
+This is a combination of the well known Ownable and Claimable patterns. It's streamlined to reduce the amount of functions exposed for gas savings.
 
 ## BoringERC20
 
