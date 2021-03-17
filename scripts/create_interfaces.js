@@ -90,5 +90,4 @@ function createInterface(name) {
     });
 }
 
-createInterface("LendingPair");
-createInterface("BentoBox");
+createInterface("KashiPairMediumRiskV1");
