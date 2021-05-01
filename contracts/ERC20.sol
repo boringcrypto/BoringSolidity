@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
+import "./interfaces/IERC20.sol";
 import "./Domain.sol";
 
 // solhint-disable no-inline-assembly
@@ -15,7 +16,14 @@ contract ERC20Data {
     mapping(address => uint256) public nonces;
 }
 
-contract ERC20 is ERC20Data, Domain {
+abstract contract ERC20 is IERC20, Domain {
+    /// @notice owner > balance mapping.
+    mapping(address => uint256) public override balanceOf;
+    /// @notice owner > spender > allowance mapping.
+    mapping(address => mapping(address => uint256)) public override allowance;
+    /// @notice owner > nonce mapping. Used in `permit`.
+    mapping(address => uint256) public nonces;
+
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
@@ -75,7 +83,7 @@ contract ERC20 is ERC20Data, Domain {
     /// @param spender Address of the party that can draw from msg.sender's account.
     /// @param amount The maximum collective amount that `spender` can draw.
     /// @return (bool) Returns True if approved.
-    function approve(address spender, uint256 amount) public returns (bool) {
+    function approve(address spender, uint256 amount) public override returns (bool) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
@@ -102,12 +110,14 @@ contract ERC20 is ERC20Data, Domain {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external {
+    ) external override {
         require(owner_ != address(0), "ERC20: Owner cannot be 0");
         require(block.timestamp < deadline, "ERC20: Expired");
-        require(ecrecover(_getDigest(keccak256(abi.encode(
-                PERMIT_SIGNATURE_HASH, owner_, spender, value, nonces[owner_]++, deadline
-            ))), v, r, s) == owner_, "ERC20: Invalid Signature");
+        require(
+            ecrecover(_getDigest(keccak256(abi.encode(PERMIT_SIGNATURE_HASH, owner_, spender, value, nonces[owner_]++, deadline))), v, r, s) ==
+                owner_,
+            "ERC20: Invalid Signature"
+        );
         allowance[owner_][spender] = value;
         emit Approval(owner_, spender, value);
     }

@@ -3,7 +3,7 @@ pragma solidity 0.6.12;
 import "../ERC20.sol";
 
 contract MockERC20 is ERC20 {
-    uint256 public totalSupply;
+    uint256 public override totalSupply;
 
     constructor(uint256 _initialAmount) public {
         // Give the creator all initial tokens
