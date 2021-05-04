@@ -7,7 +7,7 @@ pragma experimental ABIEncoderV2;
 
 // Audit on 5-Jan-2021 by Keno and BoringCrypto
 
-import "./libraries/BoringERC20.sol";
+import "./interfaces/IERC20.sol";
 
 contract BaseBoringBatchable {
     /// @dev Helper function to extract a useful revert message from a failed call.
