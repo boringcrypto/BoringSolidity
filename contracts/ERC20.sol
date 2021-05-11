@@ -40,10 +40,7 @@ abstract contract ERC20 is IERC20, Domain {
                 require(to != address(0), "ERC20: no zero address"); // Moved down so low balance calls safe some gas
 
                 balanceOf[msg.sender] = srcBalance - amount; // Underflow is checked
-                uint256 oldBalance = balanceOf[to];
-                uint256 newBalance = oldBalance + amount;
-                require(oldBalance <= newBalance, "Overflow"); // Check for overflow
-                balanceOf[to] = newBalance;
+                balanceOf[to] += amount;
             }
         }
         emit Transfer(msg.sender, to, amount);
@@ -75,10 +72,7 @@ abstract contract ERC20 is IERC20, Domain {
                 require(to != address(0), "ERC20: no zero address"); // Moved down so other failed calls safe some gas
 
                 balanceOf[from] = srcBalance - amount; // Underflow is checked
-                uint256 oldBalance = balanceOf[to];
-                uint256 newBalance = oldBalance + amount;
-                require(oldBalance <= newBalance, "Overflow"); // Check for overflow
-                balanceOf[to] = newBalance;
+                balanceOf[to] += amount;
             }
         }
         emit Transfer(from, to, amount);

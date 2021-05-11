@@ -70,7 +70,7 @@ rule SumOfBalancesIsTotalSupply(method f) {
     if (f.selector == transfer(address, uint256).selector) {
         address to;
         uint256 amount;
-        require balanceOf(e.msg.sender) + balanceOf(amount) < max_uint256;
+        require balanceOf(e.msg.sender) + balanceOf(to) < max_uint256;
         transfer(e, to, amount);
     }
 
@@ -78,7 +78,7 @@ rule SumOfBalancesIsTotalSupply(method f) {
         address from;
         address to;
         uint256 amount;
-        require balanceOf(from) + balanceOf(amount) < max_uint256;
+        require balanceOf(from) + balanceOf(to) < max_uint256;
         transferFrom(e, from, to, amount);
     }
 
