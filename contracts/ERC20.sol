@@ -33,14 +33,17 @@ abstract contract ERC20 is IERC20, Domain {
     /// @return (bool) Returns True if succeeded.
     function transfer(address to, uint256 amount) public returns (bool) {
         // If `amount` is 0, or `msg.sender` is `to` nothing happens
-        if (amount != 0) {
+        if (amount != 0 || msg.sender == to) {
             uint256 srcBalance = balanceOf[msg.sender];
             require(srcBalance >= amount, "ERC20: balance too low");
             if (msg.sender != to) {
                 require(to != address(0), "ERC20: no zero address"); // Moved down so low balance calls safe some gas
 
                 balanceOf[msg.sender] = srcBalance - amount; // Underflow is checked
-                balanceOf[to] += amount; // Can't overflow because totalSupply would be greater than 2^256-1
+                uint256 oldBalance = balanceOf[to];
+                uint256 newBalance = oldBalance + amount;
+                require(oldBalance <= newBalance, "Overflow"); // Check for overflow
+                balanceOf[to] = newBalance;
             }
         }
         emit Transfer(msg.sender, to, amount);
@@ -72,7 +75,10 @@ abstract contract ERC20 is IERC20, Domain {
                 require(to != address(0), "ERC20: no zero address"); // Moved down so other failed calls safe some gas
 
                 balanceOf[from] = srcBalance - amount; // Underflow is checked
-                balanceOf[to] += amount; // Can't overflow because totalSupply would be greater than 2^256-1
+                uint256 oldBalance = balanceOf[to];
+                uint256 newBalance = oldBalance + amount;
+                require(oldBalance <= newBalance, "Overflow"); // Check for overflow
+                balanceOf[to] = newBalance;
             }
         }
         emit Transfer(from, to, amount);
@@ -120,5 +126,22 @@ abstract contract ERC20 is IERC20, Domain {
         );
         allowance[owner_][spender] = value;
         emit Approval(owner_, spender, value);
+    }
+}
+
+contract ERC20WithSupply is IERC20, ERC20 {
+    uint256 public override totalSupply;
+
+    function _mint(address user, uint256 amount) private {
+        uint256 newTotalSupply = totalSupply + amount;
+        require(newTotalSupply >= totalSupply, "Mint overflow");
+        totalSupply = newTotalSupply;
+        balanceOf[user] += amount;
+    }
+
+    function _burn(address user, uint256 amount) private {
+        require(balanceOf[user] >= amount, "Burn too much");
+        totalSupply -= amount;
+        balanceOf[user] -= amount;
     }
 }

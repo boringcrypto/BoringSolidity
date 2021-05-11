@@ -22,7 +22,7 @@ rule AddCorrect(uint256 a, uint256 b) {
     // add must return the mathimatical addition of a and b, or revert
     assert reverted || c == a + b;
     // add can ONLY revert if the mathimatical addition of a and b overflows
-    assert !reverted || a + b > 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+    assert !reverted || a + b > max_uint256;
 }
 
 rule SubCorrect(uint256 a, uint256 b) {
@@ -33,39 +33,39 @@ rule SubCorrect(uint256 a, uint256 b) {
 }
 
 rule MulCorrectIfNotReverted(uint256 a, uint256 b) {
-    require a * b <= 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+    require a * b <= max_uint256;
     uint256 c = mul@withrevert(a, b);
     bool reverted = lastReverted;
     assert reverted || c == a * b;
-    assert !reverted || a * b > 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+    assert !reverted || a * b > max_uint256;
 }
 
 rule CorrectCastTo128(uint256 a) {
     uint128 c = to128@withrevert(a);
     bool reverted = lastReverted;
     assert reverted || c == a;
-    assert !reverted || a > 0xffffffffffffffffffffffffffffffff;
+    assert !reverted || a > max_uint128;
 }
 
 rule CorrectCastTo64(uint256 a) {
     uint64 c = to64@withrevert(a);
     bool reverted = lastReverted;
     assert reverted || c == a;
-    assert !reverted || a > 0xffffffffffffffff;
+    assert !reverted || a > max_uint64;
 }
 
 rule CorrectCastTo32(uint256 a) {
     uint32 c = to32@withrevert(a);
     bool reverted = lastReverted;
     assert reverted || c == a;
-    assert !reverted || a > 0xffffffff;
+    assert !reverted || a > max_uint32;
 }
 
 rule Add128Correct(uint128 a, uint128 b) {
     uint128 c = add128@withrevert(a, b);
     bool reverted = lastReverted;
     assert reverted || c == a + b;
-    assert !reverted || a + b > 0xffffffffffffffffffffffffffffffff;
+    assert !reverted || a + b > max_uint128;
 }
 
 rule Sub128Correct(uint128 a, uint128 b) {
@@ -79,7 +79,7 @@ rule Add64Correct(uint64 a, uint64 b) {
     uint64 c = add64@withrevert(a, b);
     bool reverted = lastReverted;
     assert reverted || c == a + b;
-    assert !reverted || a + b > 0xffffffffffffffff;
+    assert !reverted || a + b > max_uint64;
 }
 
 rule Sub64Correct(uint64 a, uint64 b) {
@@ -93,7 +93,7 @@ rule Add32Correct(uint32 a, uint32 b) {
     uint32 c = add32@withrevert(a, b);
     bool reverted = lastReverted;
     assert reverted || c == a + b;
-    assert !reverted || a + b > 0xffffffff;
+    assert !reverted || a + b > max_uint32;
 }
 
 rule Sub32Correct(uint32 a, uint32 b) {
