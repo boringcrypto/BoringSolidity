@@ -11,3 +11,6 @@ coverage/
 coverage.json
 scripts/make_abi.js
 .env
+.certora_config
+.last_confs
+.certora*
