@@ -4,6 +4,7 @@ import "../ERC20.sol";
 
 contract MockERC20 is ERC20WithSupply {
     constructor(uint256 _initialAmount) public {
+        require(msg.sender != address(0));
         // Give the creator all initial tokens
         balanceOf[msg.sender] = _initialAmount;
         // Update total supply

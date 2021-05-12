@@ -1,7 +1,60 @@
 methods {
     balanceOf(address user) returns (uint256) envfree;
     totalSupply() returns (uint256) envfree;
+    allowance(address from, address spender) returns (uint256) envfree;
 }
+
+rule TransferCorrect(address to, uint256 amount) {
+    env e;
+    require e.msg.value == 0;
+    uint256 fromBalanceBefore = balanceOf(e.msg.sender);
+    uint256 toBalanceBefore = balanceOf(to);
+    require fromBalanceBefore + toBalanceBefore <= max_uint256;
+
+    transfer@withrevert(e, to, amount);
+    bool reverted = lastReverted;
+    if (!reverted) {
+        if (e.msg.sender == to) {
+            assert balanceOf(e.msg.sender) == fromBalanceBefore;
+        } else {
+            assert balanceOf(e.msg.sender) == fromBalanceBefore - amount;
+            assert balanceOf(to) == toBalanceBefore + amount;
+        }
+    } else {
+        assert amount > fromBalanceBefore || to == 0;
+    }
+}
+
+rule TransferFromCorrect(address from, address to, uint256 amount) {
+    env e;
+    require e.msg.value == 0;
+    uint256 fromBalanceBefore = balanceOf(from);
+    uint256 toBalanceBefore = balanceOf(to);
+    uint256 allowanceBefore = allowance(from, e.msg.sender);
+    require fromBalanceBefore + toBalanceBefore <= max_uint256;
+
+    transferFrom@withrevert(e, from, to, amount);
+    bool reverted = lastReverted;
+    if (!reverted) {
+        if (from == to) {
+            assert balanceOf(from) == fromBalanceBefore;
+            assert allowance(from, e.msg.sender) == allowanceBefore;
+        } else {
+            assert balanceOf(from) == fromBalanceBefore - amount;
+            assert balanceOf(to) == toBalanceBefore + amount;
+            if (allowanceBefore == max_uint256) {
+                assert allowance(from, e.msg.sender) == max_uint256;
+            } else {
+                assert allowance(from, e.msg.sender) == allowanceBefore - amount;
+            }
+        }
+    } else {
+        assert allowanceBefore < amount || amount > fromBalanceBefore || to == 0;
+    }
+}
+
+invariant ZeroAddressNoBalance()
+    balanceOf(0) == 0
 
 ghost sumOfBalances() returns uint256;
 
@@ -10,18 +63,56 @@ hook Sstore balanceOf[KEY address a] uint256 balance (uint256 old_balance) STORA
         sumOfBalances@new() == sumOfBalances@old() + (balance - old_balance);
 }
 
-rule TransferDoesntChangeTotalSupply(address to, uint256 amount) {
+rule NoChangeTotalSupply(method f) {
     uint256 totalSupplyBefore = totalSupply();
     env e;
-    transfer(e, to, amount); 
+    calldataarg args;
+    f(e, args);
     assert totalSupply() == totalSupplyBefore;
 }
 
-rule TransferFromDoesntChangeTotalSupply(address from, address to, uint256 amount) {
-    uint256 totalSupplyBefore = totalSupply();
+rule ChangingAllowance(method f, address from, address spender) {
+    uint256 allowanceBefore = allowance(from, spender);
     env e;
-    transferFrom(e, from, to, amount); 
-    assert totalSupply() == totalSupplyBefore;
+    if (f.selector == approve(address, uint256).selector) {
+        address spender_;
+        uint256 amount;
+        approve(e, spender_, amount);
+        if (from == e.msg.sender && spender == spender_) {
+            assert allowance(from, spender) == amount;
+        } else {
+            assert allowance(from, spender) == allowanceBefore;
+        }
+    } else if (f.selector == permit(address,address,uint256,uint256,uint8,bytes32,bytes32).selector) {
+        address from_;
+        address spender_;
+        uint256 amount;
+        uint256 deadline;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+        permit(e, from_, spender_, amount, deadline, v, r, s);
+        if (from == from_ && spender == spender_) {
+            assert allowance(from, spender) == amount;
+        } else {
+            assert allowance(from, spender) == allowanceBefore;
+        }
+    } else if (f.selector == transferFrom(address,address,uint256).selector) {
+        address from_;
+        address to;
+        address amount;
+        transferFrom(e, from_, to, amount);
+        uint256 allowanceAfter = allowance(from, spender);
+        if (from == from_ && spender == e.msg.sender) {
+            assert from == to || allowanceBefore == max_uint256 || allowanceAfter == allowanceBefore - amount;
+        } else {
+            assert allowance(from, spender) == allowanceBefore;
+        }
+    } else {
+        calldataarg args;
+        f(e, args);
+        assert allowance(from, spender) == allowanceBefore;
+    }
 }
 
 rule TransferSumOfFromAndToBalancesStaySame(address to, uint256 amount) {
