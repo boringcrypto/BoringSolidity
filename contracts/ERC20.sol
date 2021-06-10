@@ -126,14 +126,14 @@ abstract contract ERC20 is IERC20, Domain {
 contract ERC20WithSupply is IERC20, ERC20 {
     uint256 public override totalSupply;
 
-    function _mint(address user, uint256 amount) private {
+    function _mint(address user, uint256 amount) internal {
         uint256 newTotalSupply = totalSupply + amount;
         require(newTotalSupply >= totalSupply, "Mint overflow");
         totalSupply = newTotalSupply;
         balanceOf[user] += amount;
     }
 
-    function _burn(address user, uint256 amount) private {
+    function _burn(address user, uint256 amount) internal {
         require(balanceOf[user] >= amount, "Burn too much");
         totalSupply -= amount;
         balanceOf[user] -= amount;
