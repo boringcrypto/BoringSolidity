@@ -131,11 +131,13 @@ contract ERC20WithSupply is IERC20, ERC20 {
         require(newTotalSupply >= totalSupply, "Mint overflow");
         totalSupply = newTotalSupply;
         balanceOf[user] += amount;
+        emit Transfer(address(0), user, amount);
     }
 
     function _burn(address user, uint256 amount) internal {
         require(balanceOf[user] >= amount, "Burn too much");
         totalSupply -= amount;
         balanceOf[user] -= amount;
+        emit Transfer(user, address(0), amount);
     }
 }
