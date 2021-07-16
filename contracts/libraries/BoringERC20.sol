@@ -60,7 +60,7 @@ library BoringERC20 {
     /// @return amount The token amount.
     function safeBalanceOf(IERC20 token, address to) internal view returns (uint256 amount) {
         (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_BALANCE_OF, to));
-        require(success && data.length >= 32, 'BoringERC20: BalanceOf failed');
+        require(success && data.length >= 32, "BoringERC20: BalanceOf failed");
         amount = abi.decode(data, (uint256));
     } 
 
