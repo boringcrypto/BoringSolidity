@@ -8,6 +8,7 @@ library BoringERC20 {
     bytes4 private constant SIG_SYMBOL = 0x95d89b41; // symbol()
     bytes4 private constant SIG_NAME = 0x06fdde03; // name()
     bytes4 private constant SIG_DECIMALS = 0x313ce567; // decimals()
+    bytes4 private constant SIG_BALANCE_OF = 0x70a08231; // balanceOf(address)
     bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
     bytes4 private constant SIG_TRANSFER_FROM = 0x23b872dd; // transferFrom(address,address,uint256)
 
@@ -52,6 +53,16 @@ library BoringERC20 {
         (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_DECIMALS));
         return success && data.length == 32 ? abi.decode(data, (uint8)) : 18;
     }
+    
+    /// @notice Provides a gas-optimized balance check to avoid a redundant extcodesize check in addition to the returndatasize check.
+    /// @param token The address of the ERC-20 token.
+    /// @param to The address of the user to check.
+    /// @return amount The token amount.
+    function safeBalanceOf(IERC20 token, address to) internal view returns (uint256 amount) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_BALANCE_OF, to));
+        require(success && data.length >= 32, "BoringERC20: BalanceOf failed");
+        amount = abi.decode(data, (uint256));
+    } 
 
     /// @notice Provides a safe ERC20.transfer version for different ERC-20 implementations.
     /// Reverts on a failed transfer.
