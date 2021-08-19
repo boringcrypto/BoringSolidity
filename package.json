@@ -25,6 +25,7 @@
     "test": "hardhat test --deploy-fixture",
     "test:coverage": "node --max-old-space-size=4096 ./node_modules/.bin/hardhat coverage",
     "test:gas": "REPORT_GAS=true yarn test",
+    "certora": "certoraRun contracts\\ERC20.sol:ERC20WithSupply --verify ERC20WithSupply:test\\certora\\ERC20.spec --jar C:\\\\certora\\\\cvt.jar",
     "prettier": "prettier --write test/**/*.js contracts/**/*.sol",
     "lint": "yarn prettier && solhint -c .solhint.json 'contracts/**/*.sol'"
   },
