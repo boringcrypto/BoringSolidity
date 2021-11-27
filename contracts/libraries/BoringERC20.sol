@@ -17,7 +17,7 @@ library BoringERC20 {
             return abi.decode(data, (string));
         } else if (data.length == 32) {
             uint8 i = 0;
-            while(i < 32 && data[i] != 0) {
+            while (i < 32 && data[i] != 0) {
                 i++;
             }
             bytes memory bytesArray = new bytes(i);
@@ -53,7 +53,7 @@ library BoringERC20 {
         (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_DECIMALS));
         return success && data.length == 32 ? abi.decode(data, (uint8)) : 18;
     }
-    
+
     /// @notice Provides a gas-optimized balance check to avoid a redundant extcodesize check in addition to the returndatasize check.
     /// @param token The address of the ERC-20 token.
     /// @param to The address of the user to check.
@@ -62,7 +62,7 @@ library BoringERC20 {
         (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_BALANCE_OF, to));
         require(success && data.length >= 32, "BoringERC20: BalanceOf failed");
         amount = abi.decode(data, (uint256));
-    } 
+    }
 
     /// @notice Provides a safe ERC20.transfer version for different ERC-20 implementations.
     /// Reverts on a failed transfer.

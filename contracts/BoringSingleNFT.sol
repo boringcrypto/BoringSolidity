@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: MIT
-
-//SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
 pragma experimental ABIEncoderV2;
 
@@ -9,18 +7,6 @@ import "./libraries/BoringAddress.sol";
 // solhint-disable avoid-low-level-calls
 
 interface ERC721TokenReceiver {
-    /// @notice Handle the receipt of an NFT
-    /// @dev The ERC721 smart contract calls this function on the recipient
-    ///  after a `transfer`. This function MAY throw to revert and reject the
-    ///  transfer. Return of other than the magic value MUST result in the
-    ///  transaction being reverted.
-    ///  Note: the contract address is always the message sender.
-    /// @param _operator The address which called `safeTransferFrom` function
-    /// @param _from The address which previously owned the token
-    /// @param _tokenId The NFT identifier which is being transferred
-    /// @param _data Additional data with no specified format
-    /// @return `bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"))`
-    ///  unless throwing
     function onERC721Received(
         address _operator,
         address _from,
@@ -84,9 +70,7 @@ abstract contract BoringSingleNFT {
         return operators[_owner][_operator];
     }
 
-    function _transferBase(
-        address to
-    ) internal {
+    function _transferBase(address to) internal {
         emit Transfer(hodler, to, 0);
         hodler = to;
         // EIP-721 seems to suggest not to emit the Approval event here as it is indicated by the Transfer event.
@@ -142,5 +126,5 @@ abstract contract BoringSingleNFT {
         return _tokenURI();
     }
 
-    function _tokenURI() internal virtual pure returns (string memory);
+    function _tokenURI() internal pure virtual returns (string memory);
 }
