@@ -25,7 +25,8 @@
     "test": "hardhat test --deploy-fixture",
     "test:coverage": "node --max-old-space-size=4096 ./node_modules/.bin/hardhat coverage",
     "test:gas": "REPORT_GAS=true yarn test",
-    "certora": "certoraRun contracts\\ERC20.sol:ERC20WithSupply --verify ERC20WithSupply:test\\certora\\ERC20.spec --jar C:\\\\certora\\\\cvt.jar",
+    "certora-erc20": "certoraRun contracts\\ERC20.sol:ERC20WithSupply --verify ERC20WithSupply:test\\certora\\ERC20.spec --jar C:\\\\certora\\\\cvt.jar",
+    "certora": "certoraRun contracts\\mocks\\MockSingleNFT.sol:MockSingleNFT --verify MockSingleNFT:test\\certora\\SingleNFT.spec --jar C:\\\\certora\\\\emv2.jar --optimistic_loop",
     "prettier": "prettier --write test/**/*.js contracts/**/*.sol",
     "lint": "yarn prettier && solhint -c .solhint.json 'contracts/**/*.sol'"
   },
