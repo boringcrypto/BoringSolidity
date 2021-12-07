@@ -106,18 +106,6 @@ invariant TotalSupplyAlwaysOne()
 invariant BalanceOfOwnerIsOne()
     balanceOf(ownerOf(0)) == 1
 
-rule OnlyOneOwner(address other, method f) {
-    address currentOwner = ownerOf(0);
-    require currentOwner != 0;
-    require other != currentOwner;
-
-    env e;
-    calldataarg args;
-    f(e, args);
-    address newOwner = ownerOf(0);
-    assert newOwner != currentOwner || newOwner != other;
-}
-
 rule NoExternalAllowedOrOwnerChange(method f) {
     address allowedBefore = getApproved(0);
     address ownerBefore = ownerOf(0);
