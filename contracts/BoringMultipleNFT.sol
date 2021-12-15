@@ -48,7 +48,7 @@ abstract contract BoringMultipleNFT {
         address owner = _tokens[tokenId].owner; 
         require(msg.sender == owner || isApprovedForAll[owner][msg.sender], "Not allowed");
         getApproved[tokenId] = approved; 
-        emit Approval(msg.sender, approved, tokenId);
+        emit Approval(owner, approved, tokenId);
     }
 
     function setApprovalForAll(address operator, bool approved) public {
@@ -148,7 +148,7 @@ abstract contract BoringMultipleNFT {
         return tokensOf[owner][index];
     }
 
-    function _mint(address owner) private {
+    function _mint(address owner) internal {
         _transferBase(totalSupply, address(0), owner);
         totalSupply++;
     }
