@@ -33,8 +33,11 @@ library Base64 {
             let resultPtr := add(result, 32)
 
             // run over the input, 3 bytes at a time
-            for {} lt(dataPtr, endPtr) {}
-            {
+            for {
+
+            } lt(dataPtr, endPtr) {
+
+            } {
                 // read 3 bytes
                 dataPtr := add(dataPtr, 3)
                 let input := mload(dataPtr)
@@ -44,16 +47,20 @@ library Base64 {
                 resultPtr := add(resultPtr, 1)
                 mstore8(resultPtr, mload(add(tablePtr, and(shr(12, input), 0x3F))))
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(shr( 6, input), 0x3F))))
+                mstore8(resultPtr, mload(add(tablePtr, and(shr(6, input), 0x3F))))
                 resultPtr := add(resultPtr, 1)
-                mstore8(resultPtr, mload(add(tablePtr, and(        input,  0x3F))))
+                mstore8(resultPtr, mload(add(tablePtr, and(input, 0x3F))))
                 resultPtr := add(resultPtr, 1)
             }
 
             // padding with '='
             switch mod(mload(data), 3)
-            case 1 { mstore(sub(resultPtr, 2), shl(240, 0x3d3d)) }
-            case 2 { mstore(sub(resultPtr, 1), shl(248, 0x3d)) }
+                case 1 {
+                    mstore(sub(resultPtr, 2), shl(240, 0x3d3d))
+                }
+                case 2 {
+                    mstore(sub(resultPtr, 1), shl(248, 0x3d))
+                }
         }
 
         return result;

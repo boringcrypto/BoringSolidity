@@ -34,21 +34,21 @@ abstract contract BoringMultipleNFT {
     }
 
     // operator mappings as per usual
-    mapping (address => mapping(address => bool)) public isApprovedForAll;
-    mapping (address => uint256[]) public tokensOf; // Array of tokens owned by
-    mapping (uint256 => TokenInfo) internal _tokens; // The index in the tokensOf array for the token, needed to remove tokens from tokensOf
-    mapping (uint256 => address) public getApproved; // keep track of approved nft
+    mapping(address => mapping(address => bool)) public isApprovedForAll;
+    mapping(address => uint256[]) public tokensOf; // Array of tokens owned by
+    mapping(uint256 => TokenInfo) internal _tokens; // The index in the tokensOf array for the token, needed to remove tokens from tokensOf
+    mapping(uint256 => address) public getApproved; // keep track of approved nft
 
     function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
         return
-            interfaceID == this.supportsInterface.selector || // EIP-165       
+            interfaceID == this.supportsInterface.selector || // EIP-165
             interfaceID == 0x80ac58cd; // EIP-721
     }
 
     function approve(address approved, uint256 tokenId) public payable {
-        address owner = _tokens[tokenId].owner; 
+        address owner = _tokens[tokenId].owner;
         require(msg.sender == owner || isApprovedForAll[owner][msg.sender], "Not allowed");
-        getApproved[tokenId] = approved; 
+        getApproved[tokenId] = approved;
         emit Approval(owner, approved, tokenId);
     }
 
@@ -65,7 +65,12 @@ abstract contract BoringMultipleNFT {
         return tokensOf[owner].length;
     }
 
-    function _transferBase(uint tokenId, address from, address to, uint72 data) internal {
+    function _transferBase(
+        uint256 tokenId,
+        address from,
+        address to,
+        uint72 data
+    ) internal {
         address owner = _tokens[tokenId].owner;
         require(from == owner, "From not owner"); // Maybe we should just completely ignore the from parameter?
 
@@ -83,11 +88,7 @@ abstract contract BoringMultipleNFT {
 
         index = uint24(tokensOf[to].length);
         tokensOf[to].push(tokenId);
-        _tokens[tokenId] = TokenInfo({
-            owner: to,
-            index: index,
-            data: data
-        });
+        _tokens[tokenId] = TokenInfo({owner: to, index: index, data: data});
 
         // EIP-721 seems to suggest not to emit the Approval event here as it is indicated by the Transfer event.
         getApproved[tokenId] = address(0);

@@ -17,5 +17,4 @@ describe("BoringMultipleNFT", function () {
         await this.contract.mint(7)
         console.log(await this.contract.tokenURI(0))
     })
-
 })
