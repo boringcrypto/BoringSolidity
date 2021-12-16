@@ -29,13 +29,14 @@ abstract contract BoringMultipleNFT {
 
     struct TokenInfo {
         address owner;
-        uint32 index; // index in the tokensOf array
+        uint24 index; // index in the tokensOf array, one address can hold a maximum of 16,777,216 tokens
+        uint72 data; // data field can be usse to store traits
     }
 
     // operator mappings as per usual
     mapping (address => mapping(address => bool)) public isApprovedForAll;
     mapping (address => uint256[]) public tokensOf; // Array of tokens owned by
-    mapping (uint256 => TokenInfo) private _tokens; // The index in the tokensOf array for the token, needed to remove tokens from tokensOf
+    mapping (uint256 => TokenInfo) internal _tokens; // The index in the tokensOf array for the token, needed to remove tokens from tokensOf
     mapping (uint256 => address) public getApproved; // keep track of approved nft
 
     function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
@@ -64,14 +65,15 @@ abstract contract BoringMultipleNFT {
         return tokensOf[owner].length;
     }
 
-    function _transferBase(uint tokenId, address from, address to) internal {
+    function _transferBase(uint tokenId, address from, address to, uint72 data) internal {
         address owner = _tokens[tokenId].owner;
         require(from == owner, "From not owner"); // Maybe we should just completely ignore the from parameter?
 
-        uint32 index;
+        uint24 index;
         // Remove the token from the current owner's tokensOf array
         if (from != address(0)) {
             index = _tokens[tokenId].index; // The index of the item to remove in the array
+            data = _tokens[tokenId].data;
             uint256 last = tokensOf[from].length - 1;
             uint256 lastTokenId = tokensOf[from][last];
             tokensOf[from][index] = lastTokenId; // Copy the last item into the slot of the one to be removed
@@ -79,11 +81,12 @@ abstract contract BoringMultipleNFT {
             tokensOf[from].pop(); // Delete the last item
         }
 
-        index = uint32(tokensOf[to].length);
+        index = uint24(tokensOf[to].length);
         tokensOf[to].push(tokenId);
         _tokens[tokenId] = TokenInfo({
             owner: to,
-            index: index
+            index: index,
+            data: data
         });
 
         // EIP-721 seems to suggest not to emit the Approval event here as it is indicated by the Transfer event.
@@ -99,7 +102,7 @@ abstract contract BoringMultipleNFT {
         require(msg.sender == from || msg.sender == getApproved[tokenId] || isApprovedForAll[from][msg.sender], "Transfer not allowed");
         require(to != address(0), "No zero address");
         // check for owner == from is in base
-        _transferBase(tokenId, from, to);
+        _transferBase(tokenId, from, to, 0);
     }
 
     function transferFrom(
@@ -134,11 +137,11 @@ abstract contract BoringMultipleNFT {
         }
     }
 
-    function tokenURI(uint256 tokenId) public pure returns (string memory) {
+    function tokenURI(uint256 tokenId) public view returns (string memory) {
         return _tokenURI(tokenId);
     }
 
-    function _tokenURI(uint256 tokenId) internal pure virtual returns (string memory);
+    function _tokenURI(uint256 tokenId) internal view virtual returns (string memory);
 
     function tokenByIndex(uint256 index) public pure returns (uint256) {
         return index; // This works due the optimization of sequential tokenIds and no burning
@@ -148,8 +151,8 @@ abstract contract BoringMultipleNFT {
         return tokensOf[owner][index];
     }
 
-    function _mint(address owner) internal {
-        _transferBase(totalSupply, address(0), owner);
+    function _mint(address owner, uint72 data) internal {
+        _transferBase(totalSupply, address(0), owner, data);
         totalSupply++;
     }
 }
