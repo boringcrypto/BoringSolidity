@@ -49,7 +49,7 @@ abstract contract BoringMultipleNFT {
         address owner = _tokens[tokenId].owner; 
         require(msg.sender == owner || isApprovedForAll[owner][msg.sender], "Not allowed");
         getApproved[tokenId] = approved; 
-        emit Approval(msg.sender, approved, tokenId);
+        emit Approval(owner, approved, tokenId);
     }
 
     function setApprovalForAll(address operator, bool approved) public {
