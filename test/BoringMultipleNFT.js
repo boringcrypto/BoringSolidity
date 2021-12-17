@@ -7,7 +7,6 @@ describe("BoringMultipleNFT", async function () {
         await prepare(this, ["MockBoringMultipleNFT"])
         this.contract = await this.MockBoringMultipleNFT.deploy()
         await this.contract.deployed()
-        // console.log(this.contract)
     })
 
     describe("deployment basic requirements", async function () {
@@ -15,7 +14,7 @@ describe("BoringMultipleNFT", async function () {
         it("should not be null, empty, undefined, address 0", async function () {
             const contractAddress = await this.contract.address
             assert.notEqual(contractAddress, "")
-            assert.notEqual(contractAddress, 0x0000000000000000000000000000000000000000)
+            assert.notEqual(contractAddress, "0x0000000000000000000000000000000000000000")
             assert.notEqual(contractAddress, null)
             assert.notEqual(contractAddress, undefined)
         })
@@ -32,38 +31,30 @@ describe("BoringMultipleNFT", async function () {
     describe("mint function", async function () {
         // testing mint function
         it("should mint the transaction and send amount to the contract minting nfts", async function () {
-            const firstMintedNFT = await this.contract.mint(this.alice.address)
+            await expect(this.contract.mint(this.alice.address))
+                .to.emit(this.contract, "Transfer")
+                .withArgs("0x0000000000000000000000000000000000000000", this.alice.address, 0)
+            await expect(this.contract.mint(this.bob.address))
+                .to.emit(this.contract, "Transfer")
+                .withArgs("0x0000000000000000000000000000000000000000", this.bob.address, 1)
 
-            // const secondMintedNFT= await this.contract.mint(this.bob.address)
-            /*
-             returns error don't know why the to and from address don't change. no matter what the address owner change
-             it returns the same alice address in the transaction info. 
-             */
-            // console.log(firstMintedNFT, secondMintedNFT)
-
-            assert.equal(firstMintedNFT.from, this.alice.address)
-            assert.equal(firstMintedNFT.to, this.contract.address)
             const supply = await this.contract.totalSupply()
-            assert.equal(Number(supply), 1)
+            assert.equal(Number(supply), 2)
         })
 
         // test totalSupply()
         it("should keep track of the total supply", async function () {
             const totalSupply = await this.contract.totalSupply()
-            assert.equal(Number(totalSupply), 1)
+            assert.equal(Number(totalSupply), 2)
         })
 
         // test mint again and supply keep track
         it("should add to the totalSupply if someone else mint the nft", async function () {
             const secondMintedNFT = await this.contract.mint(this.alice.address)
-            /*
-             returns error don't know why the to and from address don't change. no matter what the address owner change
-             it returns the same alice address in the transaction info. 
-             */
             assert.equal(secondMintedNFT.from, this.alice.address)
             assert.equal(secondMintedNFT.to, this.contract.address)
             const supply = await this.contract.totalSupply()
-            assert.equal(Number(supply), 2)
+            assert.equal(Number(supply), 3)
         })
     })
 

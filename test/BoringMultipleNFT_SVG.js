@@ -2,7 +2,7 @@ const { ADDRESS_ZERO, prepare, getApprovalDigest } = require("./utilities")
 const { expect } = require("chai")
 const { ecsign } = require("ethereumjs-util")
 
-describe("BoringMultipleNFT", function () {
+describe("BoringMultipleNFT_SVG", function () {
     before(async function () {
         await prepare(this, ["MockMultipleNFT_SVG"])
         this.contract = await this.MockMultipleNFT_SVG.deploy()
