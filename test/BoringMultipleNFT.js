@@ -29,7 +29,7 @@ describe("BoringMultipleNFT", async function () {
     })
 
     describe("mint function", async function () {
-        // testing mint function
+        // testing mint function and Transfer function. 
         it("should mint the transaction and send amount to the contract minting nfts", async function () {
             await expect(this.contract.mint(this.alice.address))
                 .to.emit(this.contract, "Transfer")
@@ -50,9 +50,9 @@ describe("BoringMultipleNFT", async function () {
 
         // test mint again and supply keep track
         it("should add to the totalSupply if someone else mint the nft", async function () {
-            const secondMintedNFT = await this.contract.mint(this.alice.address)
-            assert.equal(secondMintedNFT.from, this.alice.address)
-            assert.equal(secondMintedNFT.to, this.contract.address)
+            const thirdMintedNFT = await this.contract.mint(this.alice.address)
+            assert.equal(thirdMintedNFT.from, this.alice.address)
+            assert.equal(thirdMintedNFT.to, this.contract.address)
             const supply = await this.contract.totalSupply()
             assert.equal(Number(supply), 3)
         })
@@ -62,13 +62,13 @@ describe("BoringMultipleNFT", async function () {
         // test balanceOf and thus tokensOf
         it("should count all NFTs assigned to an owner", async function () {
             const balanceOfAlice = await this.contract.balanceOf(this.alice.address)
-            const thirdMintedNft = await this.contract.mint(this.bob.address)
+            const fourthMintedNft = await this.contract.mint(this.bob.address)
             const balanceOfBob = await this.contract.balanceOf(this.bob.address)
             const supply = await this.contract.totalSupply()
-
+            
             assert.equal(Number(balanceOfAlice), 2)
-            assert.equal(Number(balanceOfBob), 1)
-            assert.equal(Number(supply), 3)
+            assert.equal(Number(balanceOfBob), 2)
+            assert.equal(Number(supply), 4)
         })
     })
 
@@ -78,13 +78,13 @@ describe("BoringMultipleNFT", async function () {
             const ownerOfFirstToken = await this.contract.ownerOf(0)
             const ownerOfSecondToken = await this.contract.ownerOf(1)
             const ownerOfThirdToken = await this.contract.ownerOf(2)
-            const ownerOfFourthToken = await this.contract.ownerOf(4)
+            const ownerOfFifthToken = await this.contract.ownerOf(5)
             assert.equal(ownerOfFirstToken, this.alice.address)
-            assert.equal(ownerOfSecondToken, this.alice.address)
-            assert.equal(ownerOfThirdToken, this.bob.address)
+            assert.equal(ownerOfSecondToken, this.bob.address)
+            assert.equal(ownerOfThirdToken, this.alice.address)
 
             // should it return the address 0 when there is no owner ?
-            assert.equal(ownerOfFourthToken, 0x0000000000000000000000000000000000000000)
+            assert.equal(ownerOfFifthToken, 0x0000000000000000000000000000000000000000)
         })
     })
 
@@ -113,8 +113,8 @@ describe("BoringMultipleNFT", async function () {
             const indexTwoOfNFTOwnedByBob = await this.contract.tokenOfOwnerByIndex(this.bob.address, 0)
 
             assert.equal(indexOneOfNFTOwnedByAlice, 0)
-            assert.equal(indexTwoOfNFTOwnedByAlice, 1)
-            assert.equal(indexTwoOfNFTOwnedByBob, 2)
+            assert.equal(indexTwoOfNFTOwnedByAlice, 2)
+            assert.equal(indexTwoOfNFTOwnedByBob, 1)
 
             // returns error when it is not minted and when the address 0x0000000000000000000000000000000000000000
         })
@@ -128,12 +128,12 @@ describe("BoringMultipleNFT", async function () {
 
             assert.equal(Number(sendFromAliceToBob.value), 0)
             assert.equal(Number(sendFromAliceToBob.value), 0)
-            assert.equal(Number(supply), 3)
+            assert.equal(Number(supply), 4)
 
             const balanceOfBob = await this.contract.balanceOf(this.bob.address)
             const balanceOfAlice = await this.contract.balanceOf(this.alice.address)
 
-            assert.equal(Number(balanceOfBob), 2)
+            assert.equal(Number(balanceOfBob), 3)
             assert.equal(Number(balanceOfAlice), 1)
 
             const ownerOfFirstToken = await this.contract.ownerOf(0)
@@ -153,87 +153,124 @@ describe("BoringMultipleNFT", async function () {
     })
 
     describe("approve function", async function () {
-        // test approve thus getApproved
-        it("should Change or reaffirm the approved address for an NFT", async function () {
-            // is it normal ?
-            const test = await this.contract.getApproved(1)
-            assert.equal(test, 0x0000000000000000000000000000000000000000)
 
-            const approve1 = await this.contract.approve(this.bob.address, 1)
-            const approvedAddressToken1 = await this.contract.getApproved(1)
-
-            // const approve2 = await this.contract.approve(this.alice.address, 2)
-            // const approvedAddressToken2 = await this.contract.getApproved(2)
-
-            // should throw an error if the owner of the token try to approve his/her own address.
-            // const approveAliceAddress = await this.contract.approve(this.alice.address, 0)
-
-            assert.equal(approvedAddressToken1, this.bob.address)
-            // assert.equal(approvedAddressToken2, this.alice.address)
-        })
-    })
-
-    describe("isApprovedForAll function", async function () {
-        //test isApprovedForAll
         it("should query if an address is an authorized operator for another address", async function () {
-            const isBobApprovedToManageAliceAssets = await this.contract.isApprovedForAll(this.alice.address, this.bob.address)
-            const iscontractAddressApprovedToManageAliceAssets = await this.contract.isApprovedForAll(this.alice.address, this.contract.address)
 
-            assert.equal(isBobApprovedToManageAliceAssets, false)
-            assert.equal(iscontractAddressApprovedToManageAliceAssets, false)
+            await expect(this.contract.setApprovalForAll(this.bob.address, true))
+            .to.emit(this.contract, "ApprovalForAll")
+            .withArgs( this.alice.address, this.bob.address, true)
+
+            const isApprovedForBob = await this.contract.isApprovedForAll(this.alice.address, this.bob.address)
+            const isApprovedForAlice = await this.contract.isApprovedForAll(this.bob.address, this.alice.address)
+            
+            assert.equal(isApprovedForBob, true)
+            assert.equal(isApprovedForAlice, false)
+
         })
+
+
+
+        it("should emits when the approved address for an NFT is changed or reaffirmed", async function () {
+            // the zero address indicates there is no approved address
+            const notApprovedNFT = await this.contract.getApproved(0)
+            assert.equal(notApprovedNFT, 0x0000000000000000000000000000000000000000)
+            
+            // approve the address of bob.
+            await expect(this.contract.approve(this.alice.address, 0))
+            .to.emit(this.contract, "Approval")
+            .withArgs(this.alice.address,this.bob.address, 0)
+
+
+            // const ApprovedNFT = await this.contract.getApproved(0)
+            // assert.equal(ApprovedNFT, 0x0000000000000000000000000000000000000000)
+
+            
+         }) 
+
+
+
+        // test approve thus getApproved
+        // it("should change or reaffirm the approved address for an NFT", async function () {
+        //     // is it normal ?
+        //     const notApprovedNFT = await this.contract.getApproved(1)
+        //     assert.equal(notApprovedNFT, 0x0000000000000000000000000000000000000000)
+
+        //     const approve1 = await this.contract.approve(this.bob.address, 1)
+        //     console.log(approve1)
+        //     const approvedAddressToken1 = await this.contract.getApproved(1)
+
+        //     // const approve2 = await this.contract.approve(this.alice.address, 2)
+        //     // const approvedAddressToken2 = await this.contract.getApproved(2)
+
+        //     // should throw an error if the owner of the token try to approve his/her own address.
+        //     // const approveAliceAddress = await this.contract.approve(this.alice.address, 0)
+
+        //     assert.equal(approvedAddressToken1, this.bob.address)
+        //     // assert.equal(approvedAddressToken2, this.alice.address)
+        // })
     })
 
-    describe("setApprovalForAll function", async function () {
-        //test setApprovalForAll
-        it('should enable or disable approval for a third party ("operator") to manage all of msg.sender assets', async function () {
-            const contractAddressApprovedToManageAliceAssets = await this.contract.setApprovalForAll(this.alice.address, true)
-            assert.equal(contractAddressApprovedToManageAliceAssets.to, this.contract.address)
+    // describe("isApprovedForAll function", async function () {
+    //     //test isApprovedForAll
+    //     it("should query if an address is an authorized operator for another address", async function () {
+    //         const isBobApprovedToManageAliceAssets = await this.contract.isApprovedForAll(this.alice.address, this.bob.address)
+    //         const iscontractAddressApprovedToManageAliceAssets = await this.contract.isApprovedForAll(this.alice.address, this.contract.address)
 
-            //in this case msg.sender is 0x5FbDB2315678afecb367f032d93F642f64180aa3 aka this.contract.address.
-            const iscontractAddressApprovedToManageAliceAssets = await this.contract.isApprovedForAll(this.alice.address, this.contract.address)
-            // console.log(iscontractAddressApprovedToManageAliceAssets)
-            assert.equal(iscontractAddressApprovedToManageAliceAssets, true)
-        })
-    })
+    //         assert.equal(isBobApprovedToManageAliceAssets, false)
+    //         assert.equal(iscontractAddressApprovedToManageAliceAssets, false)
+    //     })
+    // })
 
-    describe("safeTransferFrom function", async function () {
-        // test safeTransferFrom
-        it("should  transfers the ownership of an NFT from one address to another address ", async function () {
-            // should be transfer not allowed error
-            try {
-                let transferFromBobToAliceToken1 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
-                    this.bob.address,
-                    this.alice.address,
-                    1
-                )
-            } catch (error) {
-                assert(error, "Error: VM Exception while processing transaction: revert Transfer not allowed")
-            }
+    // describe("setApprovalForAll function", async function () {
+    //     //test setApprovalForAll
+    //     it('should enable or disable approval for a third party ("operator") to manage all of msg.sender assets', async function () {
+    //         const contractAddressApprovedToManageAliceAssets = await this.contract.setApprovalForAll(this.alice.address, true)
+    //         assert.equal(contractAddressApprovedToManageAliceAssets.to, this.contract.address)
 
-            // // should be transfer not owner error
-            try {
-                let transferFromAliceToBobToken0 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
-                    this.alice.address,
-                    this.bob.address,
-                    0
-                )
-            } catch (error) {
-                assert(error, "Error: VM Exception while processing transaction: revert From not owner")
-            }
+    //         //in this case msg.sender is 0x5FbDB2315678afecb367f032d93F642f64180aa3 aka this.contract.address.
+    //         const iscontractAddressApprovedToManageAliceAssets = await this.contract.isApprovedForAll(this.alice.address, this.contract.address)
+    //         // console.log(iscontractAddressApprovedToManageAliceAssets)
+    //         assert.equal(iscontractAddressApprovedToManageAliceAssets, true)
+    //     })
+    // })
 
-            // should be transfer allowed
-            const transferFromAliceToBobToken0 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
-                this.alice.address,
-                this.bob.address,
-                1
-            )
-            assert.equal(transferFromAliceToBobToken0.from, this.alice.address)
-            assert.equal(transferFromAliceToBobToken0.to, this.bob.address)
-            assert.equal(Number(transferFromAliceToBobToken0.value._hex), 0)
+    // describe("safeTransferFrom function", async function () {
+    //     // test safeTransferFrom
+    //     it("should  transfers the ownership of an NFT from one address to another address ", async function () {
+    //         // should be transfer not allowed error
+    //         try {
+    //             let transferFromBobToAliceToken1 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
+    //                 this.bob.address,
+    //                 this.alice.address,
+    //                 1
+    //             )
+    //         } catch (error) {
+    //             assert(error, "Error: VM Exception while processing transaction: revert Transfer not allowed")
+    //         }
 
-            // how do you use chai for expect throw error
-            // await expect(transferFromAliceToBob).to.throw(Error, 'VM Exception while processing transaction: revert Transfer not allowed')
-        })
-    })
+    //         // // should be transfer not owner error
+    //         try {
+    //             let transferFromAliceToBobToken0 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
+    //                 this.alice.address,
+    //                 this.bob.address,
+    //                 0
+    //             )
+    //         } catch (error) {
+    //             assert(error, "Error: VM Exception while processing transaction: revert From not owner")
+    //         }
+
+    //         // should be transfer allowed
+    //         const transferFromAliceToBobToken0 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
+    //             this.alice.address,
+    //             this.bob.address,
+    //             1
+    //         )
+    //         assert.equal(transferFromAliceToBobToken0.from, this.alice.address)
+    //         assert.equal(transferFromAliceToBobToken0.to, this.bob.address)
+    //         assert.equal(Number(transferFromAliceToBobToken0.value._hex), 0)
+
+    //         // how do you use chai for expect throw error
+    //         // await expect(transferFromAliceToBob).to.throw(Error, 'VM Exception while processing transaction: revert Transfer not allowed')
+    //     })
+    // })
 })
