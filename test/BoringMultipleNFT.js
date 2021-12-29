@@ -21,25 +21,22 @@ describe("BoringMultipleNFT", async function () {
     })
 
     describe("supports interface", async function () {
-        // supports interface  // Might need to support other interface.
+        // supports interface for EIP-165 and EIP-721
         it("should support the interface 0x80ac58cd", async function () {
-            const interface = await this.contract.supportsInterface(0x80ac58cd) // does it need to support other interfaces ?
-            assert.equal(interface, true)
+            assert.isTrue(await this.contract.supportsInterface(0x01ffc9a7))
+            assert.isTrue(await this.contract.supportsInterface(0x80ac58cd))
         })
     })
 
     describe("mint function", async function () {
         // testing mint function and Transfer function. 
-        it("should mint the transaction and send amount to the contract minting nfts", async function () {
+        it("should mint the NFT and transfer the NFT from 0 to the to address", async function () {
             await expect(this.contract.mint(this.alice.address))
                 .to.emit(this.contract, "Transfer")
-                .withArgs("0x0000000000000000000000000000000000000000", this.alice.address, 0)
+                .withArgs(ADDRESS_ZERO, this.alice.address, 0)
             await expect(this.contract.mint(this.bob.address))
                 .to.emit(this.contract, "Transfer")
-                .withArgs("0x0000000000000000000000000000000000000000", this.bob.address, 1)
-
-            const supply = await this.contract.totalSupply()
-            assert.equal(Number(supply), 2)
+                .withArgs(ADDRESS_ZERO, this.bob.address, 1)
         })
 
         // test totalSupply()
@@ -50,73 +47,70 @@ describe("BoringMultipleNFT", async function () {
 
         // test mint again and supply keep track
         it("should add to the totalSupply if someone else mint the nft", async function () {
-            const thirdMintedNFT = await this.contract.mint(this.alice.address)
-            assert.equal(thirdMintedNFT.from, this.alice.address)
-            assert.equal(thirdMintedNFT.to, this.contract.address)
-            const supply = await this.contract.totalSupply()
-            assert.equal(Number(supply), 3)
+            await this.contract.mint(this.alice.address)
+            assert.equal(Number(await this.contract.totalSupply()), 3)
         })
     })
 
     describe("balanceOf function", async function () {
         // test balanceOf and thus tokensOf
         it("should count all NFTs assigned to an owner", async function () {
-            const balanceOfAlice = await this.contract.balanceOf(this.alice.address)
-            const fourthMintedNft = await this.contract.mint(this.bob.address)
-            const balanceOfBob = await this.contract.balanceOf(this.bob.address)
-            const supply = await this.contract.totalSupply()
-            
-            assert.equal(Number(balanceOfAlice), 2)
-            assert.equal(Number(balanceOfBob), 2)
-            assert.equal(Number(supply), 4)
+            assert.equal(Number(await this.contract.balanceOf(this.alice.address)), 2)
+            assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 1)
+            await this.contract.mint(this.bob.address)
+            assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 2)
+        })
+
+        it("should revert for queries about the 0 address", async function () {
+            // should it return the address 0 when there is no owner ?
+            await expect(this.contract.balanceOf(ADDRESS_ZERO)).to.be.revertedWith("No 0 owner")
         })
     })
 
     describe("ownerOf function", async function () {
         // test ownerOf and thus _tokens
         it("should find the owner of an NFT", async function () {
-            const ownerOfFirstToken = await this.contract.ownerOf(0)
-            const ownerOfSecondToken = await this.contract.ownerOf(1)
-            const ownerOfThirdToken = await this.contract.ownerOf(2)
-            const ownerOfFifthToken = await this.contract.ownerOf(5)
-            assert.equal(ownerOfFirstToken, this.alice.address)
-            assert.equal(ownerOfSecondToken, this.bob.address)
-            assert.equal(ownerOfThirdToken, this.alice.address)
+            assert.equal(await this.contract.ownerOf(0), this.alice.address)
+            assert.equal(await this.contract.ownerOf(1), this.bob.address)
+            assert.equal(await this.contract.ownerOf(2), this.alice.address)
+            assert.equal(await this.contract.ownerOf(3), this.bob.address)
+        })
 
+        it("should revert if the token owner is 0", async function () {
             // should it return the address 0 when there is no owner ?
-            assert.equal(ownerOfFifthToken, 0x0000000000000000000000000000000000000000)
+            await expect(this.contract.ownerOf(5)).to.be.revertedWith("No owner")
         })
     })
 
     describe("tokenByIndex function", async function () {
         // test tokenByIndex
         it("should return the index of the token", async function () {
-            let max = 100000
-            let randomNumber = Math.floor(Math.random() * max)
-            const tokenOne = await this.contract.tokenByIndex(0)
-            const tokenTwo = await this.contract.tokenByIndex(1)
-            const tokenThree = await this.contract.tokenByIndex(2)
-            const tokenRandomNumber = await this.contract.tokenByIndex(randomNumber)
+            assert.equal(Number(await this.contract.tokenByIndex(0)), 0)
+            assert.equal(Number(await this.contract.tokenByIndex(1)), 1)
+            assert.equal(Number(await this.contract.tokenByIndex(2)), 2)
+            assert.equal(Number(await this.contract.tokenByIndex(3)), 3)
+        })
 
-            assert.equal(Number(tokenOne), 0)
-            assert.equal(Number(tokenTwo), 1)
-            assert.equal(Number(tokenThree), 2)
-            assert.equal(Number(tokenRandomNumber), tokenRandomNumber)
+        it("should revert is greater than totalSupply", async function () {
+            await expect(this.contract.tokenByIndex(4)).to.be.revertedWith("Out of bounds")
         })
     })
 
     describe("tokenOfOwnerByIndex function", async function () {
         //test tokenOfOwnerByIndex thus tokensOf
         it("should return the token id by owner by index", async function () {
-            const indexOneOfNFTOwnedByAlice = await this.contract.tokenOfOwnerByIndex(this.alice.address, 0)
-            const indexTwoOfNFTOwnedByAlice = await this.contract.tokenOfOwnerByIndex(this.alice.address, 1)
-            const indexTwoOfNFTOwnedByBob = await this.contract.tokenOfOwnerByIndex(this.bob.address, 0)
+            assert.equal(await this.contract.tokenOfOwnerByIndex(this.alice.address, 0), 0)
+            assert.equal(await this.contract.tokenOfOwnerByIndex(this.alice.address, 1), 2)
+            assert.equal(await this.contract.tokenOfOwnerByIndex(this.bob.address, 0), 1)
+            assert.equal(await this.contract.tokenOfOwnerByIndex(this.bob.address, 1), 3)
+        })
 
-            assert.equal(indexOneOfNFTOwnedByAlice, 0)
-            assert.equal(indexTwoOfNFTOwnedByAlice, 2)
-            assert.equal(indexTwoOfNFTOwnedByBob, 1)
+        it("should revert is the owner is the 0 address", async function () {
+            await expect(this.contract.tokenOfOwnerByIndex(ADDRESS_ZERO)).to.be.reverted
+        })
 
-            // returns error when it is not minted and when the address 0x0000000000000000000000000000000000000000
+        it("should revert is the index is out of bounds", async function () {
+            await expect(this.contract.tokenOfOwnerByIndex(ADDRESS_ZERO)).to.be.reverted
         })
     })
 
@@ -176,9 +170,9 @@ describe("BoringMultipleNFT", async function () {
             assert.equal(notApprovedNFT, 0x0000000000000000000000000000000000000000)
             
             // approve the address of bob.
-            await expect(this.contract.approve(this.alice.address, 0))
+            await expect(this.contract.connect(this.bob).approve(this.carol.address, 0))
             .to.emit(this.contract, "Approval")
-            .withArgs(this.alice.address,this.bob.address, 0)
+            .withArgs(this.bob.address,this.carol.address, 0)
 
 
             // const ApprovedNFT = await this.contract.getApproved(0)
