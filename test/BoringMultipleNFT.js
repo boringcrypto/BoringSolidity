@@ -68,11 +68,11 @@ describe("BoringMultipleNFT", async function () {
         // })
 
         // why is it working ? 
-        // it("should throws when minting from zero address", async function () {
-        //     await expect(this.contract.mint(ADDRESS_ZERO))
-        //         .to.emit(this.contract, "Transfer")
-        //         .withArgs(ADDRESS_ZERO, ADDRESS_ZERO, 3)
-        // })
+        it("should throws when minting from zero address", async function () {
+            await expect(this.contract.mint(ADDRESS_ZERO))
+                .to.emit(this.contract, "Transfer")
+                .withArgs(ADDRESS_ZERO, ADDRESS_ZERO, 3)
+        })
 
     })
 
@@ -159,7 +159,7 @@ describe("BoringMultipleNFT", async function () {
 
 
     describe("transferFrom function", async function () {
-        // test transferFrom
+        // test transferFrom how do you test "valid" address and a "valid" NFT ?  
         it("should throws if msg.sender is not the owner ", async function () {
             await expect(this.contract.transferFrom(this.bob.address, this.alice.address, 0))
             .to.be.revertedWith("Transfer not allowed")
@@ -188,8 +188,6 @@ describe("BoringMultipleNFT", async function () {
             .withArgs(this.alice.address, this.carol.address, true)
 
             await this.contract.connect(this.carol).transferFrom(this.alice.address, this.bob.address, 0)
-            // await this.contract.connect(this.carol).transferFrom(this.alice.address, this.bob.address, 2) is there another to set to true flase but only for one token rather than all tokens. 
-
          })
          
 
@@ -343,43 +341,87 @@ describe("BoringMultipleNFT", async function () {
         
 
 
-        // describe("safeTransferFrom function", async function () {
-        //     // test safeTransferFrom
-        //     it("should  transfers the ownership of an NFT from one address to another address ", async function () {
-        //         // should be transfer not allowed error
-        //         try {
-        //             let transferFromBobToAliceToken1 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
-        //                 this.bob.address,
-        //                 this.alice.address,
-        //                 1
-        //             )
-        //         } catch (error) {
-        //             assert(error, "Error: VM Exception while processing transaction: revert Transfer not allowed")
-        //         }
+        describe("safeTransferFrom function", async function () {
 
-        //         // // should be transfer not owner error
-        //         try {
-        //             let transferFromAliceToBobToken0 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
-        //                 this.alice.address,
-        //                 this.bob.address,
-        //                 0
-        //             )
-        //         } catch (error) {
-        //             assert(error, "Error: VM Exception while processing transaction: revert From not owner")
-        //         }
+            // test safeTransferFrom how do you test "valid" address and a "valid" NFT ?  
+        it("should throws if msg.sender is not the owner ", async function () {
+            await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0))
+            .to.be.revertedWith("Transfer not allowed")
+        })
 
-        //         // should be transfer allowed
-        //         const transferFromAliceToBobToken0 = await this.contract.functions["safeTransferFrom(address,address,uint256)"](
-        //             this.alice.address,
-        //             this.bob.address,
-        //             1
-        //         )
-        //         assert.equal(transferFromAliceToBobToken0.from, this.alice.address)
-        //         assert.equal(transferFromAliceToBobToken0.to, this.bob.address)
-        //         assert.equal(Number(transferFromAliceToBobToken0.value._hex), 0)
+        it("should throws if _to is the zero address", async function () {
+            await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.alice.address, ADDRESS_ZERO, 0))
+            .to.be.revertedWith("No zero address")     
+         })
 
-        //         // how do you use chai for expect throw error
-        //         // await expect(transferFromAliceToBob).to.throw(Error, 'VM Exception while processing transaction: revert Transfer not allowed')
-        //     })
+         it("should throws if token Id is invalid", async function () {
+            await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.bob.address, 100000000))
+            .to.be.revertedWith("From not owner")    // maybe the error message should be changed. 
+         })
+
+         it("should throws unauthorized operator", async function () {
+
+            await expect(this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.bob.address, 0))
+            .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
+         })
+
+         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
+
+            await expect(this.contract.connect(this.carol).setApprovalForAll(this.alice.address, true))
+            .to.emit(this.contract, "ApprovalForAll")
+            .withArgs(this.carol.address, this.alice.address, true)
+
+            await this.contract.connect(this.alice).functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.bob.address, 0)
+            // await this.contract.connect(this.carol).safeTransferFrom(this.alice.address, this.bob.address, 2) is there another to set to true flase but only for one token rather than all tokens. 
+
+         })
+         
+
+        it("should transfer an nft from the owner to the receiver", async function () {
+            console.log(this.contract)
+            const sendFromAliceToBob = await this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0)
+            assert.equal(Number(sendFromAliceToBob.value), 0)
+
+            const balanceOfBob = await this.contract.balanceOf(this.bob.address)
+            const balanceOfAlice = await this.contract.balanceOf(this.alice.address)
+
+            assert.equal(Number(balanceOfBob), 2)
+            assert.equal(Number(balanceOfAlice), 2)
+
+            const ownerOfFirstToken = await this.contract.ownerOf(0)
+
+            assert.equal(ownerOfFirstToken, this.alice.address)
+        })
+
+        // it("should allow the approved operator address to send to itself", async function () {
+        //     const sendFromAliceToCarol = await this.contract.connect(this.carol).safeTransferFrom(this.alice.address, this.carol.address, 0)
+        //     assert.equal(Number(sendFromAliceToCarol.value), 0)
+
+        //     const balanceOfBob = await this.contract.balanceOf(this.bob.address)
+        //     const balanceOfAlice = await this.contract.balanceOf(this.alice.address)
+        //     const balanceOfCarol = await this.contract.balanceOf(this.carol.address)
+
+        //     assert.equal(Number(balanceOfBob), 2)
+        //     assert.equal(Number(balanceOfAlice), 1)
+        //     assert.equal(Number(balanceOfCarol), 1)
+
+        //     const ownerOfFirstToken = await this.contract.ownerOf(0)
+
+        //     assert.equal(ownerOfFirstToken, this.carol.address)
         // })
+
+
+        // it("should not work after the operator is unapproved by the original owner of the NFT", async function () {
+           
+        //     await expect(this.contract.connect(this.alice).setApprovalForAll(this.carol.address, false))
+        //     .to.emit(this.contract, "ApprovalForAll")
+        //     .withArgs(this.alice.address, this.carol.address, false)
+
+        //     await expect(this.contract.connect(this.carol).safeTransferFrom(this.alice.address, this.bob.address, 0))
+        //     .to.be.revertedWith("Transfer not allowed")
+
+        // })
+
+        
+        })
 })
