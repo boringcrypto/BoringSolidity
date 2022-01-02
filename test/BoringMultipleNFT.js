@@ -66,14 +66,6 @@ describe("BoringMultipleNFT", async function () {
         //         .to.emit(this.contract, "Transfer")
         //         .withArgs(ADDRESS_ZERO, this.alice.address, 0)).to.be.revertedWith("Expected '3' to be equal 0")
         // })
-
-        // why is it working ? 
-        it("should throws when minting from zero address", async function () {
-            await expect(this.contract.mint(ADDRESS_ZERO))
-                .to.emit(this.contract, "Transfer")
-                .withArgs(ADDRESS_ZERO, ADDRESS_ZERO, 3)
-        })
-
     })
 
 
@@ -108,7 +100,7 @@ describe("BoringMultipleNFT", async function () {
             assert.equal(await this.contract.ownerOf(3), this.bob.address)
         })
 
-        it("should revert if the token owner is 0", async function () {
+        it("should revert if the token owne r is 0", async function () {
             // should it return the address 0 when there is no owner ?
             await expect(this.contract.ownerOf(5)).to.be.revertedWith("No owner")
         })
@@ -146,11 +138,11 @@ describe("BoringMultipleNFT", async function () {
         })
 
         it("should revert is the owner is the 0 address", async function () {
-            await expect(this.contract.tokenOfOwnerByIndex(ADDRESS_ZERO)).to.be.reverted
+            await expect(this.contract.tokenOfOwnerByIndex(ADDRESS_ZERO, 0)).to.be.reverted
         })
 
         it("should revert is the index is out of bounds", async function () {
-            await expect(this.contract.tokenOfOwnerByIndex(ADDRESS_ZERO)).to.be.reverted
+            await expect(this.contract.tokenOfOwnerByIndex(this.alice.address,2000)).to.be.reverted
         })
     })
 
@@ -160,6 +152,10 @@ describe("BoringMultipleNFT", async function () {
 
     describe("transferFrom function", async function () {
         // test transferFrom how do you test "valid" address and a "valid" NFT ?  
+        /// @notice Transfer ownership of an NFT -- THE CALLER IS RESPONSIBLE
+        ///  TO CONFIRM THAT `_to` IS CAPABLE OF RECEIVING NFTS OR ELSE
+        ///  THEY MAY BE PERMANENTLY LOST HOW to test that the address is capable of receiveing the nft ? 
+
         it("should throws if msg.sender is not the owner ", async function () {
             await expect(this.contract.transferFrom(this.bob.address, this.alice.address, 0))
             .to.be.revertedWith("Transfer not allowed")
@@ -258,7 +254,7 @@ describe("BoringMultipleNFT", async function () {
     
         })
         //test setApprovalForAll
-        it('should enable or disable approval for a third party ("operator") to manage all of msg.sender assets', async function () {
+        it('should enable or disable approval for multiple third party ("operator") to manage all of msg.sender assets', async function () {
 
             await expect(this.contract.connect(this.alice).setApprovalForAll(this.carol.address, true))
             .to.emit(this.contract, "ApprovalForAll")
@@ -302,7 +298,8 @@ describe("BoringMultipleNFT", async function () {
             .to.be.revertedWith("Not allowed")
         })
 
-        it("should change or reaffirm the approved address(es) for an NFT", async function () {
+        it("should change or reaffirm the approved address(es) for an NFT", async function () { 
+            // should getApproved returns an array of addresses in case if we have mutliple addreses approved ? 
             await expect(this.contract.connect(this.alice).approve(this.carol.address, 2))
             .to.emit(this.contract, "Approval")
             .withArgs(this.alice.address, this.carol.address, 2)
@@ -343,7 +340,7 @@ describe("BoringMultipleNFT", async function () {
 
         describe("safeTransferFrom function", async function () {
 
-            // test safeTransferFrom how do you test "valid" address and a "valid" NFT ?  
+            // test safeTransferFrom how do you test "valid" address and a "valid" NFT  and how do we also test data (nft property stored on the blockchain)?  
         it("should throws if msg.sender is not the owner ", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0))
             .to.be.revertedWith("Transfer not allowed")
@@ -372,13 +369,11 @@ describe("BoringMultipleNFT", async function () {
             .withArgs(this.carol.address, this.alice.address, true)
 
             await this.contract.connect(this.alice).functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.bob.address, 0)
-            // await this.contract.connect(this.carol).safeTransferFrom(this.alice.address, this.bob.address, 2) is there another to set to true flase but only for one token rather than all tokens. 
-
          })
          
 
         it("should transfer an nft from the owner to the receiver", async function () {
-            console.log(this.contract)
+            // console.log(this.contract)
             const sendFromAliceToBob = await this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0)
             assert.equal(Number(sendFromAliceToBob.value), 0)
 
@@ -392,36 +387,6 @@ describe("BoringMultipleNFT", async function () {
 
             assert.equal(ownerOfFirstToken, this.alice.address)
         })
-
-        // it("should allow the approved operator address to send to itself", async function () {
-        //     const sendFromAliceToCarol = await this.contract.connect(this.carol).safeTransferFrom(this.alice.address, this.carol.address, 0)
-        //     assert.equal(Number(sendFromAliceToCarol.value), 0)
-
-        //     const balanceOfBob = await this.contract.balanceOf(this.bob.address)
-        //     const balanceOfAlice = await this.contract.balanceOf(this.alice.address)
-        //     const balanceOfCarol = await this.contract.balanceOf(this.carol.address)
-
-        //     assert.equal(Number(balanceOfBob), 2)
-        //     assert.equal(Number(balanceOfAlice), 1)
-        //     assert.equal(Number(balanceOfCarol), 1)
-
-        //     const ownerOfFirstToken = await this.contract.ownerOf(0)
-
-        //     assert.equal(ownerOfFirstToken, this.carol.address)
-        // })
-
-
-        // it("should not work after the operator is unapproved by the original owner of the NFT", async function () {
-           
-        //     await expect(this.contract.connect(this.alice).setApprovalForAll(this.carol.address, false))
-        //     .to.emit(this.contract, "ApprovalForAll")
-        //     .withArgs(this.alice.address, this.carol.address, false)
-
-        //     await expect(this.contract.connect(this.carol).safeTransferFrom(this.alice.address, this.bob.address, 0))
-        //     .to.be.revertedWith("Transfer not allowed")
-
-        // })
-
         
         })
 })
