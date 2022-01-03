@@ -82,7 +82,6 @@ describe("BoringMultipleNFT", async function () {
         })
 
         it("should revert for queries about the 0 address", async function () {
-            // should it return the address 0 when there is no owner ?
             await expect(this.contract.balanceOf(ADDRESS_ZERO)).to.be.revertedWith("No 0 owner")
         })
     })
@@ -100,8 +99,7 @@ describe("BoringMultipleNFT", async function () {
             assert.equal(await this.contract.ownerOf(3), this.bob.address)
         })
 
-        it("should revert if the token owne r is 0", async function () {
-            // should it return the address 0 when there is no owner ?
+        it("should revert if the token owner is 0", async function () {
             await expect(this.contract.ownerOf(5)).to.be.revertedWith("No owner")
         })
     })
@@ -167,8 +165,8 @@ describe("BoringMultipleNFT", async function () {
          })
 
          it("should throws if token Id is invalid", async function () {
-            await expect(this.contract.transferFrom(this.alice.address, this.bob.address, 100000000))
-            .to.be.revertedWith("From not owner")    // maybe the error message should be changed. 
+            await expect(this.contract.transferFrom(ADDRESS_ZERO, this.bob.address, 100000000))
+            .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
          })
 
          it("should throws unauthorized operator", async function () {
@@ -299,7 +297,6 @@ describe("BoringMultipleNFT", async function () {
         })
 
         it("should change or reaffirm the approved address(es) for an NFT", async function () { 
-            // should getApproved returns an array of addresses in case if we have mutliple addreses approved ? 
             await expect(this.contract.connect(this.alice).approve(this.carol.address, 2))
             .to.emit(this.contract, "Approval")
             .withArgs(this.alice.address, this.carol.address, 2)
@@ -313,11 +310,11 @@ describe("BoringMultipleNFT", async function () {
 
             // how do you test that what is an invalid NFT ? 
 
-            // it("should throw if tokenId is invalid", async function () {
-            //     const test = await this.contract.connect(this.alice).getApproved(20)
+            it("should throw if tokenId is invalid", async function () {
+                const test = await this.contract.connect(this.alice).getApproved(20)
     
-            //     console.log(test)
-            // })
+                // console.log(test)
+            })
     
             it("should get the approved address(es) for a single NFT", async function () {
                 assert.equal(await this.contract.getApproved(2), this.carol.address)
@@ -326,12 +323,13 @@ describe("BoringMultipleNFT", async function () {
             it("should return the zero address if there is none", async function () {
                 assert.equal(await this.contract.getApproved(1),ADDRESS_ZERO)
 
+            })
+            it("should return the approved address after it was approved", async function () {
                 await expect(this.contract.connect(this.bob).approve(this.carol.address, 1))
                 .to.emit(this.contract, "Approval")
                 .withArgs(this.bob.address, this.carol.address, 1)
 
                 assert.equal(await this.contract.getApproved(1),this.carol.address)
-
             })
     
             })
@@ -352,12 +350,11 @@ describe("BoringMultipleNFT", async function () {
          })
 
          it("should throws if token Id is invalid", async function () {
-            await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.bob.address, 100000000))
-            .to.be.revertedWith("From not owner")    // maybe the error message should be changed. 
+            await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](ADDRESS_ZERO, this.bob.address, 100000000))
+            .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
          })
 
          it("should throws unauthorized operator", async function () {
-
             await expect(this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.bob.address, 0))
             .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
          })
@@ -373,7 +370,6 @@ describe("BoringMultipleNFT", async function () {
          
 
         it("should transfer an nft from the owner to the receiver", async function () {
-            // console.log(this.contract)
             const sendFromAliceToBob = await this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0)
             assert.equal(Number(sendFromAliceToBob.value), 0)
 
