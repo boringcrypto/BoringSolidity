@@ -58,10 +58,13 @@ abstract contract BoringMultipleNFT {
     }
 
     function ownerOf(uint256 tokenId) public view returns (address) {
-        return _tokens[tokenId].owner;
+        address owner = _tokens[tokenId].owner;
+        require(owner != address(0), "No owner");
+        return owner;
     }
 
     function balanceOf(address owner) public view returns (uint256) {
+        require(owner != address(0), "No 0 owner");
         return tokensOf[owner].length;
     }
 
@@ -139,12 +142,14 @@ abstract contract BoringMultipleNFT {
     }
 
     function tokenURI(uint256 tokenId) public view returns (string memory) {
+        require(tokenId < totalSupply, "Not minted");
         return _tokenURI(tokenId);
     }
 
     function _tokenURI(uint256 tokenId) internal view virtual returns (string memory);
 
-    function tokenByIndex(uint256 index) public pure returns (uint256) {
+    function tokenByIndex(uint256 index) public view returns (uint256) {
+        require(index < totalSupply, "Out of bounds");
         return index; // This works due the optimization of sequential tokenIds and no burning
     }
 
