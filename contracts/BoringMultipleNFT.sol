@@ -4,17 +4,9 @@ pragma experimental ABIEncoderV2;
 
 import "./libraries/BoringAddress.sol";
 import "./libraries/BoringMath.sol";
+import "./interfaces/IERC721TokenReceiver.sol";
 
 // solhint-disable avoid-low-level-calls
-
-interface ERC721TokenReceiver {
-    function onERC721Received(
-        address _operator,
-        address _from,
-        uint256 _tokenId,
-        bytes calldata _data
-    ) external returns (bytes4);
-}
 
 abstract contract BoringMultipleNFT {
     /// This contract is an EIP-721 compliant contract with enumerable support
@@ -134,7 +126,7 @@ abstract contract BoringMultipleNFT {
         _transfer(from, to, tokenId);
         if (to.isContract()) {
             require(
-                ERC721TokenReceiver(to).onERC721Received(msg.sender, from, tokenId, data) ==
+                IERC721TokenReceiver(to).onERC721Received(msg.sender, from, tokenId, data) ==
                     bytes4(keccak256("onERC721Received(address,address,uint256,bytes)")),
                 "Wrong return value"
             );
