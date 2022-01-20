@@ -29,7 +29,7 @@ abstract contract BoringMultipleNFT {
     mapping(address => mapping(address => bool)) public isApprovedForAll;
     mapping(address => uint256[]) public tokensOf; // Array of tokens owned by
     mapping(uint256 => TokenInfo) internal _tokens; // The index in the tokensOf array for the token, needed to remove tokens from tokensOf
-    mapping(uint256 => address) public getApproved; // keep track of approved nft
+    mapping(uint256 => address) internal _approved; // keep track of approved nft
 
     function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
         return
@@ -40,8 +40,13 @@ abstract contract BoringMultipleNFT {
     function approve(address approved, uint256 tokenId) public payable {
         address owner = _tokens[tokenId].owner;
         require(msg.sender == owner || isApprovedForAll[owner][msg.sender], "Not allowed");
-        getApproved[tokenId] = approved;
+        _approved[tokenId] = approved;
         emit Approval(owner, approved, tokenId);
+    }
+
+    function getApproved(uint256 tokenId) public view returns (address approved) {
+        require(tokenId < totalSupply, "Invalid tokenId");
+        return _approved[tokenId];
     }
 
     function setApprovalForAll(address operator, bool approved) public {
@@ -86,7 +91,7 @@ abstract contract BoringMultipleNFT {
         _tokens[tokenId] = TokenInfo({owner: to, index: index, data: data});
 
         // EIP-721 seems to suggest not to emit the Approval event here as it is indicated by the Transfer event.
-        getApproved[tokenId] = address(0);
+        _approved[tokenId] = address(0);
         emit Transfer(from, to, tokenId);
     }
 
@@ -95,7 +100,7 @@ abstract contract BoringMultipleNFT {
         address to,
         uint256 tokenId
     ) internal {
-        require(msg.sender == from || msg.sender == getApproved[tokenId] || isApprovedForAll[from][msg.sender], "Transfer not allowed");
+        require(msg.sender == from || msg.sender == _approved[tokenId] || isApprovedForAll[from][msg.sender], "Transfer not allowed");
         require(to != address(0), "No zero address");
         // check for owner == from is in base
         _transferBase(tokenId, from, to, 0);

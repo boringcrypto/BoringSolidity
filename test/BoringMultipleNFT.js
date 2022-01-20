@@ -326,8 +326,8 @@ describe("BoringMultipleNFT", async function () {
             // how do you test that what is an invalid NFT ? 
 
             it("should throw if tokenId is invalid", async function () {
-                const test = await this.contract.getApproved(20)
-                // should be zero ? 
+                await expect(this.contract.getApproved(20)).to.be.revertedWith("Invalid tokenId")
+                await expect(this.contract.getApproved(5)).to.be.revertedWith("Invalid tokenId")
             })
     
             it("should get the approved address(es) for a single NFT", async function () {
@@ -415,7 +415,7 @@ describe("BoringMultipleNFT", async function () {
             await this.contract
                 .connect(this.alice)
                 .functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.receiver.address, 3)
-            // alice is still the owner of the nft 3 ? 
+            assert.equal(await this.contract.ownerOf(3), this.receiver.address)
             assert.equal(await this.receiver.operator(), this.alice.address)
             assert.equal(await this.receiver.from(), this.alice.address)
             assert.equal(await this.receiver.tokenId(), 3)
@@ -424,7 +424,7 @@ describe("BoringMultipleNFT", async function () {
             await this.receiver.returnToken()
 
             // ---SUMMARY---
-            // alice owns 0, 1 ,3 maybe ?
+            // alice owns 0, 1 ,3
             // bob owns  2, 4  
             // mock receiver owns nft 3 from alice right ? 
             // carol approved to interact with alice's 3 token 
@@ -436,13 +436,12 @@ describe("BoringMultipleNFT", async function () {
             await expect(this.contract
                 .connect(this.alice)
                 .functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.wrongReceiver.address, 1))
-                .to.be.revertedWith("Wrong return value")    
+                .to.be.revertedWith("Wrong return value")
+             assert.equal(await this.contract.ownerOf(3), this.alice.address)
              assert.equal(await this.wrongReceiver.operator(), ADDRESS_ZERO)
              assert.equal(await this.wrongReceiver.from(), ADDRESS_ZERO)
              assert.equal(await this.wrongReceiver.tokenId(), 0)
              assert.equal(await this.wrongReceiver.data(), "0x")
-
-            await expect(this.wrongReceiver.returnToken()).to.be.revertedWith("function call to a non-contract account")
         })
 
     })
@@ -478,7 +477,7 @@ describe("BoringMultipleNFT", async function () {
         await this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 1,  "0x32352342135123432532544353425345")
         
          // ---SUMMARY---
-        // alice owns 0,3 maybe 
+        // alice owns 0, 3
         // bob owns 1, 2, 4 
         // carol approved to interact with alice's 3 token 
         // carol approved to interact with bob's 2 token 
