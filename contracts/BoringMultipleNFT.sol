@@ -72,7 +72,7 @@ abstract contract BoringMultipleNFT {
         uint72 data
     ) internal {
         address owner = _tokens[tokenId].owner;
-        require(from == owner, "From not owner"); // Maybe we should just completely ignore the from parameter?
+        require(from == owner, "From not owner");
 
         uint24 index;
         // Remove the token from the current owner's tokensOf array
