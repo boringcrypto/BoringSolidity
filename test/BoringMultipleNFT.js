@@ -153,28 +153,28 @@ describe("BoringMultipleNFT", async function () {
 
 
     describe("transferFrom function", async function () {
-        it("should throws if from is not the current owner", async function () {
+        it("should throw if from is not the current owner", async function () {
             await expect(this.contract.transferFrom(this.bob.address, this.alice.address, 1))
             .to.be.revertedWith("Transfer not allowed")
         })
 
 
-        it("should throws if msg.sender is not the owner ", async function () {
+        it("should throw if msg.sender is not the owner ", async function () {
             await expect(this.contract.connect(this.bob).transferFrom(this.bob.address, this.carol.address, 1))
             .to.be.revertedWith("From not owner")
         })
 
-        it("should throws if _to is the zero address", async function () {
+        it("should throw if _to is the zero address", async function () {
             await expect(this.contract.transferFrom(this.alice.address, ADDRESS_ZERO, 1))
             .to.be.revertedWith("No zero address")     
          })
 
-         it("should throws if token Id is invalid", async function () {
+         it("should throw if token Id is invalid", async function () {
             await expect(this.contract.transferFrom(ADDRESS_ZERO, this.bob.address, 100000000))
             .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
          })
 
-         it("should throws unauthorized operator", async function () {
+         it("should throw unauthorized operator", async function () {
 
             await expect(this.contract.connect(this.carol).transferFrom(this.alice.address, this.bob.address, 1))
             .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
@@ -364,28 +364,28 @@ describe("BoringMultipleNFT", async function () {
 
 
         describe("safeTransferFrom function", async function () {
-        it("should throws if from is not the current owner", async function () {
+        it("should throw if from is not the current owner", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0))
             .to.be.revertedWith("Transfer not allowed")
         })
 
-        it("should throws if msg.sender is not the owner ", async function () {
+        it("should throw if msg.sender is not the owner ", async function () {
             await expect(this.contract.connect(this.bob).transferFrom(this.bob.address, this.carol.address, 1))
             .to.be.revertedWith("From not owner")
         })
 
 
-        it("should throws if _to is the zero address", async function () {
+        it("should throw if _to is the zero address", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.alice.address, ADDRESS_ZERO, 0))
             .to.be.revertedWith("No zero address")     
          })
 
-         it("should throws if token Id is invalid", async function () {
+         it("should throw if token Id is invalid", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](ADDRESS_ZERO, this.bob.address, 100000000))
             .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
          })
 
-         it("should throws unauthorized operator", async function () {
+         it("should throw unauthorized operator", async function () {
             await expect(this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.bob.address, 0))
             .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
          })
@@ -468,28 +468,27 @@ describe("BoringMultipleNFT", async function () {
 
     describe("safeTransferFrom function with bytes of data", async function () {
 
-    it("should throws if from is not the current owner", async function () {
+    it("should throw if from is not the current owner", async function () {
         await expect(this.contract.functions["safeTransferFrom(address,address,uint256,bytes)"](this.bob.address, this.alice.address, 0, "0x32352342135123432532544353425345"))
         .to.be.revertedWith("Transfer not allowed")
     })
 
-    it("should throws if msg.sender is not the owner ", async function () {
-        await expect(this.contract.connect(this.bob).transferFrom(this.alice.address, this.bob.address, 0,  "0x32352342135123432532544353425345"))
+    it("should throw if msg.sender is not the owner ", async function () {
+        await expect(this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256,bytes)"](this.bob.address, this.alice.address, 0,  "0x32352342135123432532544353425345"))
         .to.be.revertedWith("From not owner")
     })
 
-
-    it("should throws if _to is the zero address", async function () {
+    it("should throw if _to is the zero address", async function () {
         await expect(this.contract.functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, ADDRESS_ZERO, 0,  "0x32352342135123432532544353425345"))
         .to.be.revertedWith("No zero address")     
      })
 
-     it("should throws if token Id is invalid", async function () {
+     it("should throw if token Id is invalid", async function () {
         await expect(this.contract.functions["safeTransferFrom(address,address,uint256,bytes)"](ADDRESS_ZERO, this.bob.address, 100000000,  "0x32352342135123432532544353425345"))
         .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
      })
 
-     it("should throws unauthorized operator", async function () {
+     it("should throw unauthorized operator", async function () {
         await expect(this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 0,  "0x32352342135123432532544353425345"))
         .to.be.revertedWith("Transfer not allowed")    // maybe the error message should be changed. 
      })
