@@ -214,6 +214,7 @@ describe("BoringMultipleNFT", async function () {
         })
 
         it("should allow the approved operator address to send to itself", async function () {
+            // I think we can remove that one right Boring ? 
             await expect(this.contract.connect(this.carol)
             .transferFrom(this.alice.address, this.carol.address, 1))
             .to.emit(this.contract, "Transfer")
@@ -408,6 +409,24 @@ describe("BoringMultipleNFT", async function () {
             // carol approved to interact with bob's 2 token 
             // alice approved to interact with carol's token 
          })
+
+         it("should not work after the operator is unapproved by the original owner of the NFT", async function () {
+           
+            await expect(this.contract.connect(this.carol).setApprovalForAll(this.alice.address, false))
+            .to.emit(this.contract, "ApprovalForAll")
+            .withArgs(this.carol.address, this.alice.address, false)
+
+            await expect(this.contract.connect(this.alice)
+            .functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.bob.address, 1))
+            .to.be.revertedWith("Transfer not allowed")     
+            // ---SUMMARY---
+            // alice owns 0, 3
+            // bob owns  1, 2, 4  
+            // carol approved to interact with alice's 3 token 
+            // carol approved to interact with bob's 2 token 
+            // alice approved to interact with carol's token 
+
+        })
          
 
         it("should transfer an nft from the owner to the receiver", async function () {
@@ -510,7 +529,26 @@ describe("BoringMultipleNFT", async function () {
         // carol approved to interact with bob's 2 token 
         // alice approved to interact with carol's token 
      })
-     
+
+     it("should not work after the operator is unapproved by the original owner of the NFT", async function () {
+
+        await expect(this.contract.connect(this.alice).setApprovalForAll(this.bob.address, false))
+        .to.emit(this.contract, "ApprovalForAll")
+        .withArgs(this.alice.address, this.bob.address, false)
+
+        await expect(this.contract.connect(this.bob)
+        .functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 1,  "0x32352342135123432532544353425345"))
+        .to.be.revertedWith("Transfer not allowed")
+        
+        // ---SUMMARY---
+        // alice owns 0,3 maybe 
+        // bob owns 1, 2, 4 
+        // carol approved to interact with alice's 3 token 
+        // carol approved to interact with bob's 2 token 
+        // alice approved to interact with carol's token 
+     })
+
+
 
     it("should transfer an nft from the owner to the receiver", async function () {
         await expect(this.contract.connect(this.alice)
