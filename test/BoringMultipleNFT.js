@@ -159,7 +159,7 @@ describe("BoringMultipleNFT", async function () {
 
 
     describe("transferFrom function", async function () {
-        it("should throws if msg.sender is not the owner ", async function () {
+        it("should throws if msg.sender the owner but from not the owner", async function () {
             await expect(this.contract.transferFrom(this.bob.address, this.alice.address, 1))
             .to.be.revertedWith("Transfer not allowed")
         })
@@ -363,7 +363,7 @@ describe("BoringMultipleNFT", async function () {
 
 
         describe("safeTransferFrom function", async function () {
-        it("should throws if msg.sender is not the owner ", async function () {
+        it("should throws if msg.sender the owner but from not the owner", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0))
             .to.be.revertedWith("Transfer not allowed")
         })
