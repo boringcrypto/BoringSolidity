@@ -164,6 +164,13 @@ describe("BoringMultipleNFT", async function () {
             .to.be.revertedWith("Transfer not allowed")
         })
 
+        it("should throws if msg.sender is not the owner ", async function () {
+            await expect(this.contract.connect(this.bob).transferFrom(this.bob.address, this.carol.address, 1))
+            .to.be.revertedWith("From not owner")
+        })
+
+        
+
         it("should throws if _to is the zero address", async function () {
             await expect(this.contract.transferFrom(this.alice.address, ADDRESS_ZERO, 1))
             .to.be.revertedWith("No zero address")     
@@ -360,6 +367,12 @@ describe("BoringMultipleNFT", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0))
             .to.be.revertedWith("Transfer not allowed")
         })
+
+        it("should throws if msg.sender is not the owner ", async function () {
+            await expect(this.contract.connect(this.bob).transferFrom(this.bob.address, this.carol.address, 1))
+            .to.be.revertedWith("From not owner")
+        })
+
 
         it("should throws if _to is the zero address", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.alice.address, ADDRESS_ZERO, 0))
