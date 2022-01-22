@@ -18,8 +18,6 @@ describe("BoringMultipleNFT", async function () {
     })
 
 
-
-
     describe("deployment basic requirements", async function () {
         it("should not be null, empty, undefined, address 0", async function () {
             const contractAddress = await this.contract.address
@@ -31,11 +29,8 @@ describe("BoringMultipleNFT", async function () {
     })
 
 
-
-
-    describe("supports interface", async function () {
-        // supports interface for EIP-165 and EIP-721
-        it("should support the interface 0x80ac58cd", async function () {
+    describe("supports interfaces ", async function () {
+        it("should support the interface EIP-165 and EIP-721", async function () {
             assert.isTrue(await this.contract.supportsInterface(0x01ffc9a7))
             assert.isTrue(await this.contract.supportsInterface(0x80ac58cd))
         })
@@ -47,16 +42,16 @@ describe("BoringMultipleNFT", async function () {
     describe("mint function", async function () {
         it("should mint the NFT and transfer the NFT from 0 to the to address", async function () {
             await expect(this.contract.mint(this.alice.address))
-                .to.emit(this.contract, "Transfer")
-                .withArgs(ADDRESS_ZERO, this.alice.address, 0)
+            .to.emit(this.contract, "Transfer")
+            .withArgs(ADDRESS_ZERO, this.alice.address, 0)
 
             await expect(this.contract.mint(this.alice.address))
-                .to.emit(this.contract, "Transfer")
-                .withArgs(ADDRESS_ZERO, this.alice.address, 1)
+            .to.emit(this.contract, "Transfer")
+            .withArgs(ADDRESS_ZERO, this.alice.address, 1)
 
             await expect(this.contract.mint(this.bob.address))
-                .to.emit(this.contract, "Transfer")
-                .withArgs(ADDRESS_ZERO, this.bob.address, 2)
+            .to.emit(this.contract, "Transfer")
+            .withArgs(ADDRESS_ZERO, this.bob.address, 2)
         })
 
         it("should keep track of the total supply", async function () {
@@ -131,9 +126,6 @@ describe("BoringMultipleNFT", async function () {
     })
 
 
-
-
-
     describe("tokenOfOwnerByIndex function", async function () {
         it("should return the token id by owner by index", async function () {
             assert.equal(await this.contract.tokenOfOwnerByIndex(this.alice.address, 0), 0)
@@ -164,12 +156,11 @@ describe("BoringMultipleNFT", async function () {
             .to.be.revertedWith("Transfer not allowed")
         })
 
+
         it("should throws if msg.sender is not the owner ", async function () {
             await expect(this.contract.connect(this.bob).transferFrom(this.bob.address, this.carol.address, 1))
             .to.be.revertedWith("From not owner")
         })
-
-        
 
         it("should throws if _to is the zero address", async function () {
             await expect(this.contract.transferFrom(this.alice.address, ADDRESS_ZERO, 1))
@@ -192,8 +183,12 @@ describe("BoringMultipleNFT", async function () {
             await expect(this.contract.connect(this.alice).setApprovalForAll(this.carol.address, true))
             .to.emit(this.contract, "ApprovalForAll")
             .withArgs(this.alice.address, this.carol.address, true)
+            
+            await expect(this.contract.connect(this.carol)
+            .transferFrom(this.alice.address, this.bob.address, 1))
+            .to.emit(this.contract, "Transfer")
+            .withArgs(this.alice.address, this.bob.address, 1)
 
-            await this.contract.connect(this.carol).transferFrom(this.alice.address, this.bob.address, 1)
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns 1, 2, 4  
@@ -202,7 +197,12 @@ describe("BoringMultipleNFT", async function () {
          
 
         it("should transfer an nft from the owner to the receiver", async function () {
-            await this.contract.connect(this.bob).transferFrom(this.bob.address, this.alice.address, 1)
+            
+            await expect(this.contract.connect(this.bob)
+            .transferFrom(this.bob.address, this.alice.address, 1))
+            .to.emit(this.contract, "Transfer")
+            .withArgs(this.bob.address, this.alice.address,1)
+            
             assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 2)
             assert.equal(Number(await this.contract.balanceOf(this.alice.address)), 3)
             assert.equal(await this.contract.ownerOf(1), this.alice.address)
@@ -213,7 +213,11 @@ describe("BoringMultipleNFT", async function () {
         })
 
         it("should allow the approved operator address to send to itself", async function () {
-            await this.contract.connect(this.carol).transferFrom(this.alice.address, this.carol.address, 1)
+            await expect(this.contract.connect(this.carol)
+            .transferFrom(this.alice.address, this.carol.address, 1))
+            .to.emit(this.contract, "Transfer")
+            .withArgs(this.alice.address, this.carol.address, 1)
+
             assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 2) 
             assert.equal(Number(await this.contract.balanceOf(this.alice.address)), 2) 
             assert.equal(Number(await this.contract.balanceOf(this.carol.address)), 1) 
@@ -315,6 +319,7 @@ describe("BoringMultipleNFT", async function () {
             await expect(this.contract.connect(this.alice).approve(this.carol.address, 3))
             .to.emit(this.contract, "Approval")
             .withArgs(this.alice.address, this.carol.address, 3)
+            
             assert.equal(await this.contract.getApproved(3), this.carol.address)
             
             // ---SUMMARY---
@@ -396,8 +401,10 @@ describe("BoringMultipleNFT", async function () {
             .to.emit(this.contract, "ApprovalForAll")
             .withArgs(this.carol.address, this.alice.address, true)
             
-            await this.contract.connect(this.alice).functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.bob.address, 1)
-            
+            await expect(this.contract.connect(this.alice)
+            .functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.bob.address, 1))
+            .to.emit(this.contract, "Transfer")
+            .withArgs(this.carol.address, this.bob.address, 1)
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  1, 2, 4  
@@ -408,7 +415,12 @@ describe("BoringMultipleNFT", async function () {
          
 
         it("should transfer an nft from the owner to the receiver", async function () {
-            await this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 1)
+            await expect(this.contract.connect(this.bob)
+            .functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 1))
+            .to.emit(this.contract, "Transfer")
+            .withArgs(this.bob.address, this.alice.address, 1)
+            
+            
             assert.equal(Number(await this.contract.balanceOf(this.alice.address)), 3)     
             assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 2)     
             assert.equal(await this.contract.ownerOf(1), this.alice.address)
@@ -422,9 +434,11 @@ describe("BoringMultipleNFT", async function () {
         })
 
         it("should call onERC721TokenReceived on the contract it was transferred to", async function() { 
-            await this.contract
+            await expect(this.contract
                 .connect(this.alice)
-                .functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.receiver.address, 3)
+                .functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.receiver.address, 3))
+                .to.emit(this.contract, "Transfer")
+                .withArgs(this.alice.address, this.receiver.address, 3)
             assert.equal(await this.receiver.operator(), this.alice.address)
             assert.equal(await this.receiver.from(), this.alice.address)
             assert.equal(await this.receiver.tokenId(), 3)
@@ -484,7 +498,10 @@ describe("BoringMultipleNFT", async function () {
         .to.emit(this.contract, "ApprovalForAll")
         .withArgs(this.alice.address, this.bob.address, true)
 
-        await this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 1,  "0x32352342135123432532544353425345")
+        await expect(this.contract.connect(this.bob)
+        .functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 1,  "0x32352342135123432532544353425345"))
+        .to.emit(this.contract, "Transfer")
+        .withArgs(this.alice.address, this.bob.address, 1)
         
          // ---SUMMARY---
         // alice owns 0,3 maybe 
@@ -496,7 +513,11 @@ describe("BoringMultipleNFT", async function () {
      
 
     it("should transfer an nft from the owner to the receiver", async function () {
-        await this.contract.connect(this.alice).functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 3, "0x32352342135123432532544353425345")
+        await expect(this.contract.connect(this.alice)
+        .functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 3, "0x32352342135123432532544353425345"))
+        .to.emit(this.contract, "Transfer")
+        .withArgs(this.alice.address, this.bob.address, 3)
+
         assert.equal(Number(await this.contract.balanceOf(this.alice.address)), 1)     
         assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 4)     
         assert.equal(await this.contract.ownerOf(3), this.bob.address)
@@ -510,9 +531,13 @@ describe("BoringMultipleNFT", async function () {
         
 
     it("should call onERC721TokenReceived on the contract it was transferred to", async function() { 
-        await this.contract
+        await expect(this.contract
             .connect(this.bob)
-            .functions["safeTransferFrom(address,address,uint256,bytes)"](this.bob.address, this.receiver.address, 3, "0x32352342135123432532544353425345")
+            .functions["safeTransferFrom(address,address,uint256,bytes)"](this.bob.address, this.receiver.address, 3, "0x32352342135123432532544353425345"))
+            .to.emit(this.contract, "Transfer")
+            .withArgs(this.bob.address, this.receiver.address, 3)
+            
+        
         assert.equal(await this.receiver.operator(), this.bob.address)
         assert.equal(await this.receiver.from(), this.bob.address)
         assert.equal(await this.receiver.tokenId(), 3)
