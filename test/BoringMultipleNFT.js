@@ -73,6 +73,8 @@ describe("BoringMultipleNFT", async function () {
         it("should count all NFTs assigned to an owner", async function () {
             assert.equal(Number(await this.contract.balanceOf(this.alice.address)), 3)
             assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 1)
+            assert.equal(Number(await this.contract.balanceOf(this.carol.address)), 0)
+
             await this.contract.mint(this.bob.address) 
             assert.equal(Number(await this.contract.balanceOf(this.bob.address)), 2)
             // ---SUMMARY---
@@ -151,7 +153,7 @@ describe("BoringMultipleNFT", async function () {
 
 
     describe("transferFrom function", async function () {
-        it("should throws if msg.sender the owner but from not the owner", async function () {
+        it("should throws if from is not the current owner", async function () {
             await expect(this.contract.transferFrom(this.bob.address, this.alice.address, 1))
             .to.be.revertedWith("Transfer not allowed")
         })
@@ -188,7 +190,6 @@ describe("BoringMultipleNFT", async function () {
             .transferFrom(this.alice.address, this.bob.address, 1))
             .to.emit(this.contract, "Transfer")
             .withArgs(this.alice.address, this.bob.address, 1)
-
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns 1, 2, 4  
@@ -222,7 +223,6 @@ describe("BoringMultipleNFT", async function () {
             assert.equal(Number(await this.contract.balanceOf(this.alice.address)), 2) 
             assert.equal(Number(await this.contract.balanceOf(this.carol.address)), 1) 
             assert.equal(await this.contract.ownerOf(1), this.carol.address)
-            
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4  
@@ -239,7 +239,6 @@ describe("BoringMultipleNFT", async function () {
 
             await expect(this.contract.connect(this.carol).transferFrom(this.alice.address, this.bob.address, 1))
             .to.be.revertedWith("Transfer not allowed")        
-            
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4  
@@ -292,7 +291,6 @@ describe("BoringMultipleNFT", async function () {
 
             assert.equal(await this.contract.isApprovedForAll(this.alice.address, this.carol.address), false)
             assert.equal(await this.contract.isApprovedForAll(this.alice.address, this.bob.address), false)
-            
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4  
@@ -321,7 +319,6 @@ describe("BoringMultipleNFT", async function () {
             .withArgs(this.alice.address, this.carol.address, 3)
             
             assert.equal(await this.contract.getApproved(3), this.carol.address)
-            
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4  
@@ -353,7 +350,6 @@ describe("BoringMultipleNFT", async function () {
                 .withArgs(this.bob.address, this.carol.address, 2)
 
                 assert.equal(await this.contract.getApproved(2),this.carol.address)
-            
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4  
@@ -368,7 +364,7 @@ describe("BoringMultipleNFT", async function () {
 
 
         describe("safeTransferFrom function", async function () {
-        it("should throws if msg.sender the owner but from not the owner", async function () {
+        it("should throws if from is not the current owner", async function () {
             await expect(this.contract.functions["safeTransferFrom(address,address,uint256)"](this.bob.address, this.alice.address, 0))
             .to.be.revertedWith("Transfer not allowed")
         })
@@ -472,10 +468,16 @@ describe("BoringMultipleNFT", async function () {
 
     describe("safeTransferFrom function with bytes of data", async function () {
 
-    it("should throws if msg.sender is not the owner ", async function () {
+    it("should throws if from is not the current owner", async function () {
         await expect(this.contract.functions["safeTransferFrom(address,address,uint256,bytes)"](this.bob.address, this.alice.address, 0, "0x32352342135123432532544353425345"))
         .to.be.revertedWith("Transfer not allowed")
     })
+
+    it("should throws if msg.sender is not the owner ", async function () {
+        await expect(this.contract.connect(this.bob).transferFrom(this.alice.address, this.bob.address, 0,  "0x32352342135123432532544353425345"))
+        .to.be.revertedWith("From not owner")
+    })
+
 
     it("should throws if _to is the zero address", async function () {
         await expect(this.contract.functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, ADDRESS_ZERO, 0,  "0x32352342135123432532544353425345"))
@@ -502,8 +504,7 @@ describe("BoringMultipleNFT", async function () {
         .functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 1,  "0x32352342135123432532544353425345"))
         .to.emit(this.contract, "Transfer")
         .withArgs(this.alice.address, this.bob.address, 1)
-        
-         // ---SUMMARY---
+        // ---SUMMARY---
         // alice owns 0,3 maybe 
         // bob owns 1, 2, 4 
         // carol approved to interact with alice's 3 token 
@@ -545,8 +546,6 @@ describe("BoringMultipleNFT", async function () {
         assert.equal(await this.contract.ownerOf(3), this.receiver.address)
         await this.receiver.returnToken()
         assert.equal(await this.contract.ownerOf(3), this.bob.address)
-
-
         // ---SUMMARY---
         // alice owns 0 
         // bob owns 1, 2, 3, 4 
