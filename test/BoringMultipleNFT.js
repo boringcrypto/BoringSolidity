@@ -243,10 +243,9 @@ describe("BoringMultipleNFT", async function () {
 
     describe("tokenURI function", async function () {
         it("should return a distinct Uniform Resource Identifier (URI) for a given asset in our case nothing since it is supposed to be implemented by the user of the contract", async function () {
-            const token0URI = await this.contract.tokenURI(0)
-            const token1URI = await this.contract.tokenURI(1)
-            assert.equal(token0URI, "")
-            assert.equal(token1URI, "")
+            assert.equal(await this.contract.tokenURI(0), "")
+            assert.equal(await this.contract.tokenURI(1), "")
+            await expect(this.contract.tokenURI(20)).to.be.revertedWith("Not minted")
         })
     })
     
@@ -323,11 +322,9 @@ describe("BoringMultipleNFT", async function () {
 
         describe("getApproved function", async function () {
 
-            // how do you test that what is an invalid NFT ? 
 
             it("should throw if tokenId is invalid", async function () {
                 await expect(this.contract.getApproved(20)).to.be.revertedWith("Invalid tokenId")
-                await expect(this.contract.getApproved(5)).to.be.revertedWith("Invalid tokenId")
             })
     
             it("should get the approved address(es) for a single NFT", async function () {
@@ -415,16 +412,15 @@ describe("BoringMultipleNFT", async function () {
             await this.contract
                 .connect(this.alice)
                 .functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.receiver.address, 3)
-            assert.equal(await this.contract.ownerOf(3), this.receiver.address)
             assert.equal(await this.receiver.operator(), this.alice.address)
             assert.equal(await this.receiver.from(), this.alice.address)
             assert.equal(await this.receiver.tokenId(), 3)
             assert.equal(await this.receiver.data(), "0x")
-
+            assert.equal(await this.contract.ownerOf(3), this.receiver.address)
             await this.receiver.returnToken()
-
+            assert.equal(await this.contract.ownerOf(3), this.alice.address)
             // ---SUMMARY---
-            // alice owns 0, 1 ,3
+            // alice owns 0, 1 ,3 
             // bob owns  2, 4  
             // mock receiver owns nft 3 from alice right ? 
             // carol approved to interact with alice's 3 token 
@@ -436,12 +432,13 @@ describe("BoringMultipleNFT", async function () {
             await expect(this.contract
                 .connect(this.alice)
                 .functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.wrongReceiver.address, 1))
-                .to.be.revertedWith("Wrong return value")
-             assert.equal(await this.contract.ownerOf(3), this.alice.address)
+                .to.be.revertedWith("Wrong return value")    
              assert.equal(await this.wrongReceiver.operator(), ADDRESS_ZERO)
              assert.equal(await this.wrongReceiver.from(), ADDRESS_ZERO)
              assert.equal(await this.wrongReceiver.tokenId(), 0)
              assert.equal(await this.wrongReceiver.data(), "0x")
+
+            await expect(this.wrongReceiver.returnToken()).to.be.revertedWith("function call to a non-contract account")
         })
 
     })
@@ -477,7 +474,7 @@ describe("BoringMultipleNFT", async function () {
         await this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256,bytes)"](this.alice.address, this.bob.address, 1,  "0x32352342135123432532544353425345")
         
          // ---SUMMARY---
-        // alice owns 0, 3
+        // alice owns 0,3 maybe 
         // bob owns 1, 2, 4 
         // carol approved to interact with alice's 3 token 
         // carol approved to interact with bob's 2 token 
@@ -507,8 +504,10 @@ describe("BoringMultipleNFT", async function () {
         assert.equal(await this.receiver.from(), this.bob.address)
         assert.equal(await this.receiver.tokenId(), 3)
         assert.equal(await this.receiver.data(), "0x32352342135123432532544353425345")
-
+        assert.equal(await this.contract.ownerOf(3), this.receiver.address)
         await this.receiver.returnToken()
+        assert.equal(await this.contract.ownerOf(3), this.bob.address)
+
 
         // ---SUMMARY---
         // alice owns 0 
