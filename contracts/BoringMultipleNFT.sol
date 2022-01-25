@@ -34,7 +34,9 @@ abstract contract BoringMultipleNFT {
     function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
         return
             interfaceID == this.supportsInterface.selector || // EIP-165
-            interfaceID == 0x80ac58cd; // EIP-721
+            interfaceID == 0x80ac58cd || // EIP-721
+            interfaceID == 0x5b5e139f || // EIP-721 metadata extension
+            interfaceID == 0x780e9d63; // EIP-721 enumeration extension
     }
 
     function approve(address approved, uint256 tokenId) public payable {

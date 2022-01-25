@@ -34,10 +34,15 @@ describe("BoringMultipleNFT", async function () {
 
 
     describe("supports interface", async function () {
-        // supports interface for EIP-165 and EIP-721
+        // supports interface for EIP-165 and EIP-721 + extensions
         it("should support the interface 0x80ac58cd", async function () {
-            assert.isTrue(await this.contract.supportsInterface(0x01ffc9a7))
-            assert.isTrue(await this.contract.supportsInterface(0x80ac58cd))
+            assert.isTrue(await this.contract.supportsInterface("0x01ffc9a7", { gasLimit: 30000 })) // EIP-165
+            assert.isTrue(await this.contract.supportsInterface("0x80ac58cd", { gasLimit: 30000 })) // EIP-721
+            assert.isTrue(await this.contract.supportsInterface("0x5b5e139f", { gasLimit: 30000 })) // EIP-721 metadata extension
+            assert.isTrue(await this.contract.supportsInterface("0x780e9d63", { gasLimit: 30000 })) // EIP-721 enumeration extension
+            assert.isFalse(await this.contract.supportsInterface("0xffffffff", { gasLimit: 30000 })) // Must be false
+            assert.isFalse(await this.contract.supportsInterface("0xabcdef12", { gasLimit: 30000 })) // Not implemented, so false
+            assert.isFalse(await this.contract.supportsInterface("0x00000000", { gasLimit: 30000 })) // Not implemented, so false
         })
     })
 
