@@ -16,7 +16,6 @@ describe("BoringERC20", function () {
 
     it("Token address is set", async function () {
         expect(await this.mock.token()).to.equal(this.token.address)
-        console.log(this.token.address)
     })
 
     it("Get the symbol of a token that has no symbol", async function () {

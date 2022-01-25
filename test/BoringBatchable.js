@@ -55,25 +55,23 @@ describe("BoringBatchable", function () {
             .withArgs(this.alice.address, this.bob.address, 100)
     })
 
-    describe("Permit", function () {
-        it("Successfully executes a permit", async function () {
-            const nonce = await this.contract.nonces(this.alice.address)
+    it("Successfully executes a permit", async function () {
+        const nonce = await this.contract.nonces(this.alice.address)
 
-            const deadline = (await this.bob.provider._internalBlockNumber).respTime + 10000
+        const deadline = (await this.bob.provider._internalBlockNumber).respTime + 10000
 
-            const digest = await getApprovalDigest(
-                this.contract,
-                {
-                    owner: this.alice.address,
-                    spender: this.bob.address,
-                    value: 1,
-                },
-                nonce,
-                deadline,
-                this.bob.provider._network.chainId
-            )
-            const { v, r, s } = ecsign(Buffer.from(digest.slice(2), "hex"), Buffer.from(this.alicePrivateKey.replace("0x", ""), "hex"))
-            await this.contract.permitToken(this.contract.address, this.alice.address, this.bob.address, 1, deadline, v, r, s)
-        })
+        const digest = await getApprovalDigest(
+            this.contract,
+            {
+                owner: this.alice.address,
+                spender: this.bob.address,
+                value: 1,
+            },
+            nonce,
+            deadline,
+            this.bob.provider._network.chainId
+        )
+        const { v, r, s } = ecsign(Buffer.from(digest.slice(2), "hex"), Buffer.from(this.alicePrivateKey.replace("0x", ""), "hex"))
+        await this.contract.permitToken(this.contract.address, this.alice.address, this.bob.address, 1, deadline, v, r, s)
     })
 })

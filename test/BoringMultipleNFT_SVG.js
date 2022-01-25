@@ -15,6 +15,6 @@ describe("BoringMultipleNFT_SVG", function () {
 
     it("Mint token", async function () {
         await this.contract.mint(7)
-        console.log(await this.contract.tokenURI(0))
+        // console.log(await this.contract.tokenURI(0))
     })
 })
