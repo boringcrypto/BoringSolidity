@@ -156,8 +156,9 @@ abstract contract BoringMultipleNFT {
         return tokensOf[owner][index];
     }
 
-    function _mint(address owner, uint72 data) internal {
-        _transferBase(totalSupply, address(0), owner, data);
+    function _mint(address owner, uint72 data) internal returns (uint256 tokenId) {
+        tokenId = totalSupply;
+        _transferBase(tokenId, address(0), owner, data);
         totalSupply++;
     }
 }
