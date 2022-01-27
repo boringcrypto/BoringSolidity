@@ -6,7 +6,7 @@ describe("BoringSingleNFT", async function () {
     before(async function () {
         await prepare(this, ["MockBoringSingleNFT"])
         this.contract = await this.MockBoringSingleNFT.deploy()
-        // alice is the deployer and hence the owner of the NFT. 
+        // alice is the deployer and hence the owner of the NFT.
         await this.contract.connect(this.alice).deployed()
 
         await prepare(this, ["MockERC721Receiver"])
@@ -40,7 +40,6 @@ describe("BoringSingleNFT", async function () {
         })
     })
 
-
     describe("balanceOf function", async function () {
         it("should revert for queries about the 0 address", async function () {
             await expect(this.contract.balanceOf(ADDRESS_ZERO)).to.be.revertedWith("No zero address") // not consistent with "No 0 owner"
@@ -51,9 +50,8 @@ describe("BoringSingleNFT", async function () {
             assert.equal(Number(await this.contract.balanceOf(this.carol.address)), 0)
             // ---SUMMARY---
             // alice owns the single NFT.
-            // no one else does. 
+            // no one else does.
         })
-
     })
 
     describe("ownerOf function", async function () {
@@ -61,14 +59,13 @@ describe("BoringSingleNFT", async function () {
             assert.equal(await this.contract.ownerOf(0), this.alice.address)
             // ---SUMMARY---
             // alice owns the single NFT.
-            // no one else does. 
+            // no one else does.
         })
 
         it("should revert if the token owner is 0", async function () {
             await expect(this.contract.ownerOf(5)).to.be.revertedWith("Invalid token ID")
         })
     })
-
 
     describe("transferFrom function", async function () {
         it("should throw token Id is invalid", async function () {
@@ -91,7 +88,8 @@ describe("BoringSingleNFT", async function () {
 
         it("should throw unauthorized operator", async function () {
             await expect(this.contract.connect(this.carol).transferFrom(this.alice.address, this.bob.address, 0)).to.be.revertedWith(
-                "Transfer not allowed")
+                "Transfer not allowed"
+            )
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
@@ -185,7 +183,6 @@ describe("BoringSingleNFT", async function () {
         })
 
         it("should change or reaffirm the approved address(es) for an NFT", async function () {
-    
             await expect(this.contract.connect(this.alice).approve(this.bob.address, 0))
                 .to.emit(this.contract, "Approval")
                 .withArgs(this.alice.address, this.bob.address, 0)
@@ -200,19 +197,17 @@ describe("BoringSingleNFT", async function () {
 
             assert.equal(await this.contract.getApproved(0), ADDRESS_ZERO)
 
-            // is that normal that after bob approved and after I reset setApprovalForAll to false bob can still transfer stuff from alice to carol ? 
+            // is that normal that after bob approved and after I reset setApprovalForAll to false bob can still transfer stuff from alice to carol ?
 
             // await expect(this.contract.connect(this.alice).setApprovalForAll(this.bob.address, false))
             //     .to.emit(this.contract, "ApprovalForAll")
             //     .withArgs(this.alice.address, this.bob.address, false)
 
-
             // await expect(this.contract.connect(this.bob).transferFrom(this.alice.address, this.carol.address, 0))
             //     .to.emit(this.contract, "Transfer")
             //     .withArgs(this.alice.address, this.carol.address, 0)
 
-
-           // ---SUMMARY---
+            // ---SUMMARY---
             // carol is the hodler
         })
     })
@@ -225,7 +220,6 @@ describe("BoringSingleNFT", async function () {
         it("should get the approved address(es) for a single NFT", async function () {
             assert.equal(await this.contract.getApproved(0), ADDRESS_ZERO)
         })
-
 
         it("should return the approved address after it was approved", async function () {
             await expect(this.contract.connect(this.carol).approve(this.bob.address, 0))
@@ -240,7 +234,7 @@ describe("BoringSingleNFT", async function () {
                 .to.emit(this.contract, "Approval")
                 .withArgs(this.carol.address, ADDRESS_ZERO, 0)
 
-            assert.equal(await this.contract.getApproved(0),ADDRESS_ZERO)
+            assert.equal(await this.contract.getApproved(0), ADDRESS_ZERO)
             // ---SUMMARY---
             // carol is the hodler
         })
@@ -268,13 +262,13 @@ describe("BoringSingleNFT", async function () {
         it("should throw if token Id is invalid", async function () {
             await expect(
                 this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.bob.address, 2)
-            ).to.be.revertedWith("Invalid token ID") 
+            ).to.be.revertedWith("Invalid token ID")
         })
 
         it("should throw unauthorized operator", async function () {
             await expect(
                 this.contract.connect(this.bob).functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.bob.address, 0)
-            ).to.be.revertedWith("Transfer not allowed") 
+            ).to.be.revertedWith("Transfer not allowed")
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
@@ -283,7 +277,10 @@ describe("BoringSingleNFT", async function () {
                 .withArgs(this.carol.address, this.alice.address, true)
 
             await expect(
-                this.contract.connect(this.alice).functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.alice.address, 0))
+                this.contract
+                    .connect(this.alice)
+                    .functions["safeTransferFrom(address,address,uint256)"](this.carol.address, this.alice.address, 0)
+            )
                 .to.emit(this.contract, "Transfer")
                 .withArgs(this.carol.address, this.alice.address, 0)
 
@@ -293,10 +290,12 @@ describe("BoringSingleNFT", async function () {
             // alice apporved for all carol's asset.
         })
 
-
         it("should transfer an nft from the owner to the receiver", async function () {
             await expect(
-                this.contract.connect(this.alice).functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.carol.address, 0))
+                this.contract
+                    .connect(this.alice)
+                    .functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.carol.address, 0)
+            )
                 .to.emit(this.contract, "Transfer")
                 .withArgs(this.alice.address, this.carol.address, 0)
 
@@ -317,10 +316,8 @@ describe("BoringSingleNFT", async function () {
             // ---SUMMARY---
             // carol is the hodler
             // alice apporved for all carol's asset.
-
         })
 
-       
         it("should call onERC721TokenReceived on the contract it was transferred to", async function () {
             await expect(
                 this.contract
@@ -355,16 +352,17 @@ describe("BoringSingleNFT", async function () {
         })
     })
 
-
     describe("safeTransferFrom function with bytes of data", async function () {
         it("should throw if from is not the current owner", async function () {
             await expect(
-                this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256,bytes)"](
-                    this.bob.address,
-                    this.alice.address,
-                    0,
-                    "0x32352342135123432532544353425345"
-                )
+                this.contract
+                    .connect(this.carol)
+                    .functions["safeTransferFrom(address,address,uint256,bytes)"](
+                        this.bob.address,
+                        this.alice.address,
+                        0,
+                        "0x32352342135123432532544353425345"
+                    )
             ).to.be.revertedWith("From not owner")
         })
 
@@ -383,24 +381,28 @@ describe("BoringSingleNFT", async function () {
 
         it("should throw if _to is the zero address", async function () {
             await expect(
-                this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256,bytes)"](
-                    this.carol.address,
-                    ADDRESS_ZERO,
-                    0,
-                    "0x32352342135123432532544353425345"
-                )
+                this.contract
+                    .connect(this.carol)
+                    .functions["safeTransferFrom(address,address,uint256,bytes)"](
+                        this.carol.address,
+                        ADDRESS_ZERO,
+                        0,
+                        "0x32352342135123432532544353425345"
+                    )
             ).to.be.revertedWith("No zero address")
         })
 
         it("should throw if token Id is invalid", async function () {
             await expect(
-                this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256,bytes)"](
-                    this.carol.address,
-                    this.bob.address,
-                    100000000,
-                    "0x32352342135123432532544353425345"
-                )
-            ).to.be.revertedWith("Invalid token ID") 
+                this.contract
+                    .connect(this.carol)
+                    .functions["safeTransferFrom(address,address,uint256,bytes)"](
+                        this.carol.address,
+                        this.bob.address,
+                        100000000,
+                        "0x32352342135123432532544353425345"
+                    )
+            ).to.be.revertedWith("Invalid token ID")
         })
 
         it("should throw unauthorized operator", async function () {
@@ -413,7 +415,7 @@ describe("BoringSingleNFT", async function () {
                         0,
                         "0x32352342135123432532544353425345"
                     )
-            ).to.be.revertedWith("Transfer not allowed") 
+            ).to.be.revertedWith("Transfer not allowed")
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
@@ -432,11 +434,11 @@ describe("BoringSingleNFT", async function () {
                     )
             )
                 .to.emit(this.contract, "Transfer")
-                .withArgs(this.carol.address, this.alice.address,0)
+                .withArgs(this.carol.address, this.alice.address, 0)
             assert.equal(await this.contract.ownerOf(0), this.alice.address)
-                // ---SUMMARY---
-                // alice is the holder
-                // alice is approved to interact with all carol's asset.
+            // ---SUMMARY---
+            // alice is the holder
+            // alice is approved to interact with all carol's asset.
         })
 
         it("should transfer an nft from the owner to the receiver", async function () {
@@ -474,10 +476,9 @@ describe("BoringSingleNFT", async function () {
                         "0x32352342135123432532544353425345"
                     )
             ).to.be.revertedWith("Transfer not allowed")
-             // ---SUMMARY---
+            // ---SUMMARY---
             // carol is the holder
         })
-
 
         it("should call onERC721TokenReceived on the contract it was transferred to", async function () {
             await expect(
@@ -500,7 +501,7 @@ describe("BoringSingleNFT", async function () {
             assert.equal(await this.contract.ownerOf(0), this.receiver.address)
             await this.receiver.returnToken()
             assert.equal(await this.contract.ownerOf(0), this.carol.address)
-             // ---SUMMARY---
+            // ---SUMMARY---
             // carol is the holder
         })
 
