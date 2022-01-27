@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.6.12;
-import "../interfaces/IERC721TokenWrongReceiver.sol";
-import "../BoringMultipleNFT.sol";
+import "../interfaces/IERC721TokenReceiver.sol";
+import "../BoringSingleNFT.sol";
 
-contract MockERC721ReceiverWrong is IERC721TokenWrongReceiver {
+contract MockERC721ReceiverSingleNFT is IERC721TokenReceiver {
     address public sender;
     address public operator;
     address public from;
@@ -15,17 +15,17 @@ contract MockERC721ReceiverWrong is IERC721TokenWrongReceiver {
         address _from,
         uint256 _tokenId,
         bytes calldata _data
-    ) external override returns (bytes8) {
+    ) external override returns (bytes4) {
         sender = msg.sender;
         operator = _operator;
         from = _from;
         tokenId = _tokenId;
         data = _data;
 
-        return bytes8(keccak256(""));
+        return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
     }
 
     function returnToken() external {
-        BoringMultipleNFT(sender).transferFrom(address(this), from, tokenId);
+        BoringSingleNFT(sender).transferFrom(address(this), from, tokenId);
     }
 }

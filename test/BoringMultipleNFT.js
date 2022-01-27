@@ -8,12 +8,12 @@ describe("BoringMultipleNFT", async function () {
         this.contract = await this.MockBoringMultipleNFT.deploy()
         await this.contract.deployed()
 
-        await prepare(this, ["MockERC721Receiver"])
-        this.receiver = await this.MockERC721Receiver.deploy()
+        await prepare(this, ["MockERC721ReceiverMultipleNFT"])
+        this.receiver = await this.MockERC721ReceiverMultipleNFT.deploy()
         await this.receiver.deployed()
 
-        await prepare(this, ["MockERC721ReceiverWrong"])
-        this.wrongReceiver = await this.MockERC721ReceiverWrong.deploy()
+        await prepare(this, ["MockERC721ReceiverWrongMultipleNFT"])
+        this.wrongReceiver = await this.MockERC721ReceiverWrongMultipleNFT.deploy()
         await this.wrongReceiver.deployed()
     })
 
@@ -272,6 +272,18 @@ describe("BoringMultipleNFT", async function () {
                 .withArgs(this.alice.address, this.carol.address, 3)
 
             assert.equal(await this.contract.getApproved(3), this.carol.address)
+        })
+
+        it("should reset the approve to none after transfer", async function () {
+            await expect(this.contract.connect(this.carol).transferFrom(this.alice.address, this.carol.address, 3))
+                .to.emit(this.contract, "Transfer")
+                .withArgs(this.alice.address, this.carol.address, 3)
+
+            assert.equal(await this.contract.getApproved(3), ADDRESS_ZERO)
+
+            await expect(this.contract.connect(this.carol).transferFrom(this.carol.address, this.alice.address, 3))
+                .to.emit(this.contract, "Transfer")
+                .withArgs(this.carol.address, this.alice.address, 3)
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4
@@ -285,10 +297,6 @@ describe("BoringMultipleNFT", async function () {
             await expect(this.contract.getApproved(20)).to.be.revertedWith("Invalid tokenId")
         })
 
-        it("should get the approved address(es) for a single NFT", async function () {
-            assert.equal(await this.contract.getApproved(3), this.carol.address)
-        })
-
         it("should return the zero address if there is none", async function () {
             assert.equal(await this.contract.getApproved(1), ADDRESS_ZERO)
         })
@@ -298,12 +306,19 @@ describe("BoringMultipleNFT", async function () {
                 .withArgs(this.bob.address, this.carol.address, 2)
 
             assert.equal(await this.contract.getApproved(2), this.carol.address)
+        })
+
+        it("should return the previous approved address after it was unapproved (i.e set Approval to address zero)", async function () {
+            await expect(this.contract.connect(this.bob).approve(ADDRESS_ZERO, 2))
+                .to.emit(this.contract, "Approval")
+                .withArgs(this.bob.address, ADDRESS_ZERO, 2)
+
+            assert.equal(await this.contract.getApproved(2),ADDRESS_ZERO)
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4
             //carol owns 1
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
         })
     })
 
@@ -335,7 +350,7 @@ describe("BoringMultipleNFT", async function () {
         it("should throw unauthorized operator", async function () {
             await expect(
                 this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.bob.address, 0)
-            ).to.be.revertedWith("Transfer not allowed") // maybe the error message should be changed.
+            ).to.be.revertedWith("Transfer not allowed") 
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
@@ -352,7 +367,6 @@ describe("BoringMultipleNFT", async function () {
             // alice owns 0, 3
             // bob owns  1, 2, 4
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
@@ -368,7 +382,6 @@ describe("BoringMultipleNFT", async function () {
             // alice owns 0, 3
             // bob owns  1, 2, 4
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
@@ -386,7 +399,6 @@ describe("BoringMultipleNFT", async function () {
             // alice owns 0, 1,  3
             // bob owns  2, 4
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
@@ -410,7 +422,6 @@ describe("BoringMultipleNFT", async function () {
             // bob owns  2, 4
             // mock receiver owns nft 3 from alice right ?
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
@@ -486,7 +497,7 @@ describe("BoringMultipleNFT", async function () {
                         0,
                         "0x32352342135123432532544353425345"
                     )
-            ).to.be.revertedWith("Transfer not allowed") // maybe the error message should be changed.
+            ).to.be.revertedWith("Transfer not allowed") 
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
@@ -510,7 +521,6 @@ describe("BoringMultipleNFT", async function () {
             // alice owns 0,3 maybe
             // bob owns 1, 2, 4
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
@@ -534,7 +544,6 @@ describe("BoringMultipleNFT", async function () {
             // alice owns 0,3 maybe
             // bob owns 1, 2, 4
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
@@ -559,7 +568,6 @@ describe("BoringMultipleNFT", async function () {
             // alice owns 0
             // bob owns 1, 2, 3, 4
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
@@ -588,7 +596,6 @@ describe("BoringMultipleNFT", async function () {
             // alice owns 0
             // bob owns 1, 2, 3, 4
             // carol approved to interact with alice's 3 token
-            // carol approved to interact with bob's 2 token
             // alice approved to interact with carol's token
         })
 
