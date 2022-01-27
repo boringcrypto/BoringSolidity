@@ -3,7 +3,7 @@ pragma solidity 0.6.12;
 import "../interfaces/IERC721TokenReceiver.sol";
 import "../BoringMultipleNFT.sol";
 
-contract MockERC721ReceiverMultipleNFT is IERC721TokenReceiver {
+contract MockERC721Receiver is IERC721TokenReceiver {
     address public sender;
     address public operator;
     address public from;

@@ -9,12 +9,12 @@ describe("BoringSingleNFT", async function () {
         // alice is the deployer and hence the owner of the NFT. 
         await this.contract.connect(this.alice).deployed()
 
-        await prepare(this, ["MockERC721ReceiverSingleNFT"])
-        this.receiver = await this.MockERC721ReceiverSingleNFT.deploy()
+        await prepare(this, ["MockERC721Receiver"])
+        this.receiver = await this.MockERC721Receiver.deploy()
         await this.receiver.deployed()
 
-        await prepare(this, ["MockERC721ReceiverWrongSingleNFT"])
-        this.wrongReceiver = await this.MockERC721ReceiverWrongSingleNFT.deploy()
+        await prepare(this, ["MockERC721ReceiverWrong"])
+        this.wrongReceiver = await this.MockERC721ReceiverWrong.deploy()
         await this.wrongReceiver.deployed()
     })
 
@@ -91,7 +91,7 @@ describe("BoringSingleNFT", async function () {
 
         it("should throw unauthorized operator", async function () {
             await expect(this.contract.connect(this.carol).transferFrom(this.alice.address, this.bob.address, 0)).to.be.revertedWith(
-                "Transfer not allowed"
+                "Transfer not allowed")
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {

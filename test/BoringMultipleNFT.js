@@ -8,12 +8,12 @@ describe("BoringMultipleNFT", async function () {
         this.contract = await this.MockBoringMultipleNFT.deploy()
         await this.contract.deployed()
 
-        await prepare(this, ["MockERC721ReceiverMultipleNFT"])
-        this.receiver = await this.MockERC721ReceiverMultipleNFT.deploy()
+        await prepare(this, ["MockERC721Receiver"])
+        this.receiver = await this.MockERC721Receiver.deploy()
         await this.receiver.deployed()
 
-        await prepare(this, ["MockERC721ReceiverWrongMultipleNFT"])
-        this.wrongReceiver = await this.MockERC721ReceiverWrongMultipleNFT.deploy()
+        await prepare(this, ["MockERC721ReceiverWrong"])
+        this.wrongReceiver = await this.MockERC721ReceiverWrong.deploy()
         await this.wrongReceiver.deployed()
     })
 
