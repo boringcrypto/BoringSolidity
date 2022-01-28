@@ -313,7 +313,7 @@ describe("BoringMultipleNFT", async function () {
                 .to.emit(this.contract, "Approval")
                 .withArgs(this.bob.address, ADDRESS_ZERO, 2)
 
-            assert.equal(await this.contract.getApproved(2),ADDRESS_ZERO)
+            assert.equal(await this.contract.getApproved(2), ADDRESS_ZERO)
             // ---SUMMARY---
             // alice owns 0, 3
             // bob owns  2, 4
@@ -350,7 +350,7 @@ describe("BoringMultipleNFT", async function () {
         it("should throw unauthorized operator", async function () {
             await expect(
                 this.contract.connect(this.carol).functions["safeTransferFrom(address,address,uint256)"](this.alice.address, this.bob.address, 0)
-            ).to.be.revertedWith("Transfer not allowed") 
+            ).to.be.revertedWith("Transfer not allowed")
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
@@ -497,7 +497,7 @@ describe("BoringMultipleNFT", async function () {
                         0,
                         "0x32352342135123432532544353425345"
                     )
-            ).to.be.revertedWith("Transfer not allowed") 
+            ).to.be.revertedWith("Transfer not allowed")
         })
 
         it("should transfer when the operator is authorized by the original owner of the NFT", async function () {
