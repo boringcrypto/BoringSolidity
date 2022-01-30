@@ -179,7 +179,7 @@ describe("BoringSingleNFT", async function () {
         it("should throw if the msg.sender is not the owner of the NFT", async function () {
             await expect(this.contract.connect(this.carol).approve(this.bob.address, 0)).to.be.revertedWith("Not allowed")
         })
-
+        
         it("should throw if the operator is unauthorized", async function () {
             await expect(this.contract.connect(this.bob).approve(this.bob.address, 0)).to.be.revertedWith("Not allowed")
         }) // how do you test that ? already tested above maybe ? 
