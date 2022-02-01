@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.6.12;
-pragma experimental ABIEncoderV2;
 
 import "./libraries/BoringAddress.sol";
 import "./libraries/BoringMath.sol";
+import "./interfaces/IERC1155.sol";
 import "./interfaces/IERC1155TokenReceiver.sol";
 
-// solhint-disable avoid-low-level-calls
-
-abstract contract BoringMultipleToken {
+abstract contract BoringMultipleToken is IERC1155 {
     using BoringAddress for address;
     using BoringMath for uint256;
 
@@ -18,32 +16,29 @@ abstract contract BoringMultipleToken {
     event URI(string _value, uint256 indexed _id);
 
     // mappings
-    mapping(address => mapping(address => bool)) public OperatorIsApprovedForAll; // map of operator approval
-    mapping(address => mapping(uint256 => uint256)) public balances; // map of tokens owned by
+    mapping(address => mapping(address => bool)) public override isApprovedForAll; // map of operator approval
+    mapping(address => mapping(uint256 => uint256)) public override balanceOf; // map of tokens owned by
 
-    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
+    function supportsInterface(bytes4 interfaceID) external view override returns (bool) {
         return
             interfaceID == this.supportsInterface.selector || // EIP-165
-            interfaceID == 0xd9b67a26; // ERC-165
+            interfaceID == 0xd9b67a26; // ERC-1155
     }
 
-    function balanceOf(address _owner, uint256 _id) external view returns (uint256) {
-        require(_owner != address(0), "No 0 owner");
-        return balances[_owner][_id];
-    }
+    function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids)
+        external
+        view
+        override
+        returns (uint256[] memory ownersAccount)
+    {
+        uint256 len = _owners.length;
+        require(len == _ids.length, "ERC1155: Length mismatch");
 
-    function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids) external view returns (uint256[] memory) {
-        require(_owners.length == _ids.length);
+        ownersAccount = new uint256[](len);
 
-        uint256[] memory ownersAccount = new uint256[](_owners.length);
-
-        for (uint256 i = 0; i < _owners.length; i++) {
-            address owner = _owners[i];
-            uint256 id = _ids[i];
-            ownersAccount[i] = balances[owner][id];
+        for (uint256 i = 0; i < len; i++) {
+            ownersAccount[i] = balanceOf[_owners[i]][_ids[i]];
         }
-
-        return ownersAccount;
     }
 
     function safeTransferFrom(
@@ -52,14 +47,12 @@ abstract contract BoringMultipleToken {
         uint256 _id,
         uint256 _value,
         bytes calldata _data
-    ) external {
+    ) external override {
         require(_to != address(0), "No 0 address");
-        require(_from == msg.sender || OperatorIsApprovedForAll[_from][msg.sender] == true, "Transfer not allowed");
+        require(_from == msg.sender || isApprovedForAll[_from][msg.sender] == true, "Transfer not allowed");
 
-        balances[_from][_id] = balances[_from][_id].sub(_value);
-        balances[_to][_id] = _value.add(balances[_to][_id]);
-
-        emit TransferSingle(msg.sender, _from, _to, _id, _value);
+        balanceOf[_from][_id] = balanceOf[_from][_id].sub(_value);
+        balanceOf[_to][_id] = _value.add(balanceOf[_to][_id]);
 
         if (_to.isContract()) {
             require(
@@ -68,6 +61,8 @@ abstract contract BoringMultipleToken {
                 "Wrong return value"
             );
         }
+
+        emit TransferSingle(msg.sender, _from, _to, _id, _value);
     }
 
     function safeBatchTransferFrom(
@@ -76,19 +71,17 @@ abstract contract BoringMultipleToken {
         uint256[] calldata _ids,
         uint256[] calldata _values,
         bytes calldata _data
-    ) external {
+    ) external override {
         require(_to != address(0), "No 0 address");
-        require(_ids.length == _values.length);
-        require(_from == msg.sender || OperatorIsApprovedForAll[_from][msg.sender] == true, "Transfer not allowed");
+        require(_ids.length == _values.length, "ERC1155: Length mismatch");
+        require(_from == msg.sender || isApprovedForAll[_from][msg.sender] == true, "Transfer not allowed");
 
         for (uint256 i = 0; i < _ids.length; i++) {
             uint256 id = _ids[i];
             uint256 value = _values[i];
-            balances[_from][id] = balances[_from][id].sub(value);
-            balances[_to][id] = value.add(balances[_to][id]);
+            balanceOf[_from][id] = balanceOf[_from][id].sub(value);
+            balanceOf[_to][id] = value.add(balanceOf[_to][id]);
         }
-
-        emit TransferBatch(msg.sender, _from, _to, _ids, _values);
 
         if (_to.isContract()) {
             require(
@@ -97,14 +90,12 @@ abstract contract BoringMultipleToken {
                 "Wrong return value"
             );
         }
+
+        emit TransferBatch(msg.sender, _from, _to, _ids, _values);
     }
 
-    function setApprovalForAll(address _operator, bool _approved) external {
-        OperatorIsApprovedForAll[msg.sender][_operator] = _approved;
+    function setApprovalForAll(address _operator, bool _approved) external override {
+        isApprovedForAll[msg.sender][_operator] = _approved;
         emit ApprovalForAll(msg.sender, _operator, _approved);
-    }
-
-    function isApprovedForAll(address _owner, address _operator) external view returns (bool) {
-        return OperatorIsApprovedForAll[_owner][_operator];
     }
 }
