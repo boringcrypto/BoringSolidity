@@ -136,7 +136,9 @@ describe("BoringSingleNFT", async function () {
     describe("tokenURI function", async function () {
         it("should return a distinct Uniform Resource Identifier (URI) for a given asset in our case nothing since it is supposed to be implemented by the user of the contract", async function () {
             assert.equal(await this.contract.tokenURI(0), "")
-            await expect(this.contract.tokenURI(20)).to.be.revertedWith("Invalid token ID")
+        })
+        it("should throw when token is invalid", async function () {
+        await expect(this.contract.tokenURI(20)).to.be.revertedWith("Invalid token ID")
         })
     })
 
@@ -177,10 +179,10 @@ describe("BoringSingleNFT", async function () {
         it("should throw if the msg.sender is not the owner of the NFT", async function () {
             await expect(this.contract.connect(this.carol).approve(this.bob.address, 0)).to.be.revertedWith("Not allowed")
         })
-
+        
         it("should throw if the operator is unauthorized", async function () {
-            await expect(this.contract.connect(this.bob).approve(this.alice.address, 0)).to.be.revertedWith("Not allowed")
-        })
+            await expect(this.contract.connect(this.bob).approve(this.bob.address, 0)).to.be.revertedWith("Not allowed")
+        }) // how do you test that ? already tested above maybe ? 
 
         it("should change or reaffirm the approved address(es) for an NFT", async function () {
             await expect(this.contract.connect(this.alice).approve(this.bob.address, 0))
@@ -194,7 +196,7 @@ describe("BoringSingleNFT", async function () {
                 .withArgs(this.alice.address, this.carol.address, 0)
 
             // assert if it was reset to none after transfer
-
+            assert.equal(await this.contract.ownerOf(0), this.carol.address)
             assert.equal(await this.contract.getApproved(0), ADDRESS_ZERO)
 
             // is that normal that after bob approved and after I reset setApprovalForAll to false bob can still transfer stuff from alice to carol ?
