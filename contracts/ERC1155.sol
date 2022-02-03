@@ -6,6 +6,8 @@ import "./libraries/BoringMath.sol";
 import "./interfaces/IERC1155.sol";
 import "./interfaces/IERC1155TokenReceiver.sol";
 
+// Written by OreNoMori (https://github.com/Farrabi)
+
 abstract contract ERC1155 is IERC1155 {
     using BoringAddress for address;
     using BoringMath for uint256;
