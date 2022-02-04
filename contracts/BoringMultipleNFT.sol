@@ -17,12 +17,33 @@ abstract contract BoringMultipleNFT {
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
+    string public name;
+    string public symbol;
+
+    constructor(string memory name_, string memory symbol_) public {
+        name = name_;
+        symbol = symbol_;
+    }
+
     uint256 public totalSupply = 0;
 
+    struct TraitsData {
+        uint8 trait0;
+        uint8 trait1;
+        uint8 trait2;
+        uint8 trait3;
+        uint8 trait4;
+        uint8 trait5;
+        uint8 trait6;
+        uint8 trait7;
+        uint8 trait8;
+    }
+
     struct TokenInfo {
+        // There 3 pack into a single storage slot 160 + 24 + 9*8 = 256 bits
         address owner;
         uint24 index; // index in the tokensOf array, one address can hold a maximum of 16,777,216 tokens
-        uint72 data; // data field can be usse to store traits
+        TraitsData data; // data field can be used to store traits
     }
 
     // operator mappings as per usual
@@ -71,7 +92,7 @@ abstract contract BoringMultipleNFT {
         uint256 tokenId,
         address from,
         address to,
-        uint72 data
+        TraitsData memory data
     ) internal {
         address owner = _tokens[tokenId].owner;
         require(from == owner, "From not owner");
@@ -105,7 +126,7 @@ abstract contract BoringMultipleNFT {
         require(msg.sender == from || msg.sender == _approved[tokenId] || isApprovedForAll[from][msg.sender], "Transfer not allowed");
         require(to != address(0), "No zero address");
         // check for owner == from is in base
-        _transferBase(tokenId, from, to, 0);
+        _transferBase(tokenId, from, to, TraitsData(0, 0, 0, 0, 0, 0, 0, 0, 0));
     }
 
     function transferFrom(
@@ -156,7 +177,8 @@ abstract contract BoringMultipleNFT {
         return tokensOf[owner][index];
     }
 
-    function _mint(address owner, uint72 data) internal returns (uint256 tokenId) {
+    // 
+    function _mint(address owner, TraitsData memory data) internal returns (uint256 tokenId) {
         tokenId = totalSupply;
         _transferBase(tokenId, address(0), owner, data);
         totalSupply++;

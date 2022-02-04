@@ -1,15 +1,39 @@
-// SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
-import "../BoringMultipleNFT.sol";
-import "../libraries/Base64.sol";
+const { ADDRESS_ZERO, prepare, getApprovalDigest, deploy } = require("./utilities")
+const { expect } = require("chai")
+const { ecsign } = require("ethereumjs-util")
 
-contract MockMultipleNFT_SVG is BoringMultipleNFT {
-    using Base64 for bytes;
+describe("BoringGenerativeNFT", function () {
+    before(async function () {
+        await prepare(this, ["BoringGenerativeNFT", "FixedTrait"])
+        await deploy(this, [
+            ["contract", this.BoringGenerativeNFT, ["Gatos", "GATO"]],
+            ["head", this.FixedTrait, ["Head"]],
+            ["eyes", this.FixedTrait, ["Eyes"]]
+        ])
+        await this.contract.addTrait(this.head)
+        await this.contract.addTrait(this.eyes)
 
-    string private constant START_SVG = '<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" viewBox="0 0 120.7 103.2">';
-    string private constant END_SVG = "</svg>";
+        await this.head.add({name: "Base", svg: "HEAD"})
+        await this.head.add({name: "Big", svg: "BIGHEAD"})
+        await this.eyes.add({name: "Open", svg: "EYES"})
+        await this.eyes.add({name: "Closed", svg: "CLOSEDEYES"})
+        await this.eyes.add({name: "Wink", svg: "WINKEYES"})
+    })
 
-    function renderHead(uint8 color) private view returns (string memory) {
+    it("TotalSupply is 0", async function () {
+        expect(await this.contract.totalSupply()).to.equal(0)
+    })
+
+    it("Mint token", async function () {
+        await this.contract.mint([1, 1, 0, 0, 0, 0, 0, 0, 0])
+        console.log(await this.contract.tokenURI(0))
+        //console.log(await this.eyes.render(0))
+    })
+})
+
+
+
+    /*function renderHead(uint8 color) private view returns (string memory) {
         string[8] memory colorList = ["9b9c9e", "ffffff", "222222", "6b6c6e", "abcdef", "557799", "887755", "aa0000"];
         return
             string(
@@ -24,20 +48,7 @@ contract MockMultipleNFT_SVG is BoringMultipleNFT {
     function renderEyes() private view returns (string memory) {
         return
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><defs><style>.b{fill:#bdbdbf}.c{fill:#f9c41c}.e,.j,.k{fill:none;stroke:#474441;stroke-miterlimit:10}.e,.j{stroke-width:1.59px}.l{fill:#ed913e}.g{fill:#474441}.h{fill:#f4e8c9}.i{fill:#89898a}.j,.k{stroke-linecap:round}.k{stroke-width:2.39px}.l{mix-blend-mode:darken}</style></defs><g style="isolation:isolate"><path class="b" d="M78 101.1c7.4-2 15.6-2.7 23.1-.1 6.5-16.6-24-17.5-23.7-.7a6.4 6.4 0 0 0 .6.8Z"/><path class="b" d="M150.8 103.1c7.2-2.9 15-5.6 22-.5 9-19.6-29.7-18-22 .5Z"/><path class="c" d="M168.9 93.4c-18.5-9.4-26.4 22.2-5.9 23 12.5.5 16.9-17.6 5.9-23Z"/><path d="M151.7 109.1c1 5.4 8.3 7.6 11.1 7.6 8.8.2 15.2-10.6 10.6-18-3.7 8.1-14.6 12.3-21.7 10.4Z" style="fill:#eb9038"/><path class="e" d="M168.9 93.4c-18.5-9.4-26.4 22.2-5.9 23 12.5.5 16.9-17.6 5.9-23Z"/><path class="c" d="M98.3 94.6c-18.8-12.2-29.7 20.4-7.8 21.9 11.4.6 16-15.5 7.8-22Z"/><path d="M102 106.7a16 16 0 0 1-10.5 2.3c-4.8-.7-9-3.5-12.7-6.6-3.8 6.9 5.6 14.1 11.7 14.1a12.4 12.4 0 0 0 8-3 12 12 0 0 0 2.8-3.4c.2-.4 1-3.5.7-3.4Z" style="fill:#ed913e"/><path class="e" d="M98.3 94.6c-18.8-12.2-29.7 20.4-7.8 21.9 11.4.6 16-15.5 7.8-22Z"/><path class="g" d="M88.6 108.1c1.2 8 4.6 3.9 4.8-1.1.1-4.7.2-10.8-2.6-10.9-3.7 0-2.8 8.4-2.2 12Z"/><path class="h" d="M83 98.8a2 2 0 0 0 1.7 1c2.4.4 7.4-1.3 4.8-4.5-2-2.6-7.5.7-6.5 3.5Z"/><path class="g" d="M160.8 108.6c1.3 8 4.6 3.9 4.8-1.2.2-4.7.2-10.7-2.6-10.8-3.7 0-2.8 8.4-2.2 12Z"/><path class="h" d="M162.4 95.3c-2.3-2-7.6-.3-6.2 3.3s10.3.2 6.3-3.3Z"/><path class="i" d="M97.5 113.3a26.8 26.8 0 0 0-18.6.2c-10.4 6.8 14.3 13.2 19.2 10 4.5-3.6 7.6-6.8-.6-10.2Z"/><path class="i" d="M173 112.3c-8-1.7-29.3.9-17.4 7.5 10.6 5.9 33.6-2.8 17.3-7.5Z"/><path class="b" d="M176.7 113.6c4.5 3.3-7.6 1.6-9.3 1.6-5-.5-9.7 1.1-14.4 1.9-5.2-3.5 19.2-8.3 23.7-3.5Z"/><path class="j" d="M151.2 116.2c7.3-5.7 18.5-7.3 26.4-1.7"/><path class="b" d="M77.5 113.8c-4.6 3.4 7.6 1.7 9.3 1.6 5-.5 10.6 1.2 15.2 1.9 5.2-3.4-20-8.2-24.5-3.5Z"/><path class="j" d="M76.1 115c8-4.7 19.2-5 26.4 1.6"/><path class="k" d="M91.5 84.2c-4.8-.7-10.3 2.1-12.3 4.5"/><path class="k" d="M160.8 82.1c4.7-.7 10.2 2.1 12.2 4.5"/><path class="l" d="M98 106c.4 1 2 .7 2-.4 0-1.5-2.4-1-2 .4Z"/><path class="l" d="M156.3 108c.3.6 1 .2.9-.4-.2-.9-1.2-.4-1 .4Z"/><path class="l" d="M96.2 107.2c.3.6 1 .2 1-.4-.3-.9-1.3-.4-1 .4Z"/><path class="l" d="M153.8 107c.1 1 1.5 1 1.7 0 .2-1.2-1.7-1.2-1.7 0Z"/></g></svg>';
-    }
-
-    function render(uint8 color) private view returns (string memory) {
-        return string(abi.encodePacked(START_SVG, renderHead(color), renderEyes(), END_SVG));
-    }
-
-    function _tokenURI(uint256 tokenId) internal view override returns (string memory) {
-        return bytes(render(uint8(_tokens[tokenId].data))).encode();
-    }
-
-    function mint(uint8 color) public {
-        _mint(msg.sender, color);
-    }
-}
+    }*/
 
 /*
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
