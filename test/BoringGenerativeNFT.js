@@ -1,23 +1,23 @@
 const { ADDRESS_ZERO, prepare, getApprovalDigest, deploy } = require("./utilities")
 const { expect } = require("chai")
 const { ecsign } = require("ethereumjs-util")
+const { AbiCoder } = require("ethers/lib/utils")
 
 describe("BoringGenerativeNFT", function () {
     before(async function () {
         await prepare(this, ["BoringGenerativeNFT", "FixedTrait"])
         await deploy(this, [
             ["contract", this.BoringGenerativeNFT, ["Gatos", "GATO"]],
-            ["head", this.FixedTrait, ["Head"]],
-            ["eyes", this.FixedTrait, ["Eyes"]]
+            ["fixed", this.FixedTrait]
         ])
-        await this.contract.addTrait(this.head)
-        await this.contract.addTrait(this.eyes)
+        await this.contract.addTrait("head", this.fixed.address)
+        await this.contract.addTrait("eyes", this.fixed.address)
 
-        await this.head.add({name: "Base", svg: "HEAD"})
-        await this.head.add({name: "Big", svg: "BIGHEAD"})
-        await this.eyes.add({name: "Open", svg: "EYES"})
-        await this.eyes.add({name: "Closed", svg: "CLOSEDEYES"})
-        await this.eyes.add({name: "Wink", svg: "WINKEYES"})
+        await this.contract.addTraitData(0, new AbiCoder().encode(["tuple(string, string)"], [["Base", "HEAD"]]))
+        await this.contract.addTraitData(0, new AbiCoder().encode(["tuple(string, string)"], [["Big", "BIGHEAD"]]))
+        await this.contract.addTraitData(1, new AbiCoder().encode(["tuple(string, string)"], [["Open", "EYES"]]))
+        await this.contract.addTraitData(1, new AbiCoder().encode(["tuple(string, string)"], [["Closed", "CLOSEDEYES"]]))
+        await this.contract.addTraitData(1, new AbiCoder().encode(["tuple(string, string)"], [["Wink", "WINKEYES"]]))
     })
 
     it("TotalSupply is 0", async function () {
@@ -25,9 +25,20 @@ describe("BoringGenerativeNFT", function () {
     })
 
     it("Mint token", async function () {
-        await this.contract.mint([1, 1, 0, 0, 0, 0, 0, 0, 0])
-        console.log(await this.contract.tokenURI(0))
-        //console.log(await this.eyes.render(0))
+        await this.contract.mint({
+          trait0: 1,
+          trait1: 2,
+          trait2: 0,
+          trait3: 0,
+          trait4: 0,
+          trait5: 0,
+          trait6: 0,
+          trait7: 0,
+          trait8: 0
+        }, this.alice.address)
+        const base64 = await this.contract.tokenURI(0)
+        const text = Buffer.from(base64, 'base64').toString("utf-8")
+        console.log(text)
     })
 })
 
