@@ -21,7 +21,7 @@ describe("ERC115", function () {
     })
 
     describe("token creation", function () {
-        // is is suppose to throw when tryin to have initialSupply equal to zero ? 
+        // is it supposed to throw when tryin to have initialSupply equal to zero ? 
 
         it("should create a token", async function () {
            
@@ -42,10 +42,6 @@ describe("ERC115", function () {
             assert.equal(await this.contract.functions["creators(uint256)"](2), this.bob.address)
 
         })
-
-
-        // should we check that the from is the contract address at the creation of a new token ? 
-
         it("should make sure we have unique id for each token", async function () {
             assert.equal(await this.contract.functions["uniqueness()"](), 2)
         })
@@ -75,9 +71,7 @@ describe("ERC115", function () {
             
         // })
 
-        // thinking but might be not needed is it suppose to throw when unauthorize mint for someone else ? 
-
-
+        // Just thinking but might be not needed since mint is internal. Is it supposed to throw when an operator mint on behalf of someone else ? 
 
         it ("alice should be able to mint part of supply of token 1" , async function () {
             await expect(this.contract.connect(this.alice).mint(this.alice.address, 1, 1000))
@@ -152,7 +146,6 @@ describe("ERC115", function () {
 
 
         it("should return the number of multiple tokens owned by alice's address", async function () {
-            // hello boring maybe you know a cleaner to test it for array
             const balanceBatch = await this.contract.functions["balanceOfBatch(address[],uint256[])"]([this.alice.address, this.alice.address], [1,2])
             assert.equal(Number(balanceBatch['balances']['0']), 1000)
             assert.equal(Number(balanceBatch['balances']['1']), 2000)
@@ -184,7 +177,6 @@ describe("ERC115", function () {
         })
 
         it("should return the number of multiple tokens owned by alice address zero if none", async function () {
-            // hello boring maybe you know a cleaner to test it for array
             const balanceBatch = await this.contract.functions["balanceOfBatch(address[],uint256[])"]([this.alice.address, this.alice.address], [1,4])
             assert.equal(Number(balanceBatch['balances']['0']), 1000)
             assert.equal(Number(balanceBatch['balances']['1']), 0)
@@ -194,7 +186,6 @@ describe("ERC115", function () {
         })
 
         it("should return the number of multiple tokens owned by alice address zero if none", async function () {
-            // hello boring maybe you know a cleaner to test it for array
             const balanceBatch = await this.contract.functions["balanceOfBatch(address[],uint256[])"]([this.alice.address, this.bob.address], [3,4])
             assert.equal(Number(balanceBatch['balances']['0']), 0)
             assert.equal(Number(balanceBatch['balances']['1']), 0)
@@ -242,10 +233,11 @@ describe("ERC115", function () {
 
 
     describe("setApprovalForAll", function () {
-        it ("should revert when the operator set approval whereas it is not the owner", async function () {
-            // right ? 
+        // is it supposed to revert when the operator set approval whereas it is not the owner
+        // it ("should revert when the operator set approval whereas it is not the owner", async function () {
+        //     // right ? 
             
-        })
+        // })
 
         it ("should authorize the operator ", async function () {
             var isCarolApprovedForAliceToken = await this.contract.functions["isApprovedForAll(address,address)"](this.alice.address, this.carol.address)
@@ -414,7 +406,6 @@ describe("ERC115", function () {
 
         // })
 
-
         it ("should throw when ids[].length != values[].length", async function () {
             await expect(this.contract.connect(this.alice).functions["safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"](
                 this.alice.address, this.bob.address, [1,2], [10], "0x")).to.be.revertedWith("ERC1155: Length mismatch")
@@ -448,7 +439,7 @@ describe("ERC115", function () {
                 this.alice.address, this.bob.address, [1,2], [10,10], "0x")).to.be.revertedWith("Transfer not allowed")
         })
 
-        // // for NFT maybe we should check the from is the owner as well ?
+        //  for NFT maybe we should check the from is the owner as well ?
 
         it ("should send from the owner to the receiver", async function () {
             await expect(this.contract.connect(this.alice)
