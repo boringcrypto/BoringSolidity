@@ -10,8 +10,8 @@ describe("BoringGenerativeNFT", function () {
             ["contract", this.BoringGenerativeNFT, ["Gatos", "GATO"]],
             ["fixed", this.FixedTrait]
         ])
-        await this.contract.addTrait("head", this.fixed.address)
-        await this.contract.addTrait("eyes", this.fixed.address)
+        await this.contract.addTrait("Head", this.fixed.address)
+        await this.contract.addTrait("Eyes", this.fixed.address)
 
         await this.contract.addTraitData(0, new AbiCoder().encode(["tuple(string, string)"], [["Base", "HEAD"]]))
         await this.contract.addTraitData(0, new AbiCoder().encode(["tuple(string, string)"], [["Big", "BIGHEAD"]]))
@@ -36,9 +36,10 @@ describe("BoringGenerativeNFT", function () {
           trait7: 0,
           trait8: 0
         }, this.alice.address)
-        const base64 = await this.contract.tokenURI(0)
+        const metadata = await this.contract.tokenURI(0)
+        const base64 = ""
         const text = Buffer.from(base64, 'base64').toString("utf-8")
-        console.log(text)
+        console.log(metadata)
     })
 })
 

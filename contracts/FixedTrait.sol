@@ -9,16 +9,33 @@ contract FixedTrait is ITrait {
         string svg;
     }
 
+    mapping(IBoringGenerativeNFT => mapping(uint8 => string)) public names;
     mapping(IBoringGenerativeNFT => mapping(uint8 => Option[])) public options;
+
+    function setName(uint8 trait, string calldata name) external override returns (bytes4) {
+        names[IBoringGenerativeNFT(msg.sender)][trait] = name;
+
+        return bytes4(keccak256("setName(uint8,string)"));
+    }
 
     function addData(uint8 trait, bytes calldata data) external override returns (bytes4) {
         Option memory option = abi.decode(data, (Option));
         options[IBoringGenerativeNFT(msg.sender)][trait].push(option);
 
-        return bytes4(keccak256("addData(IBoringGenerativeNFT nft, uint8 trait, bytes calldata data)"));
+        return bytes4(keccak256("addData(address,uint8,bytes)"));
     }
 
-    function render(IBoringGenerativeNFT nft, uint256, uint8 trait, uint8 gene) external view override returns (string memory output) {
+    function renderTrait(IBoringGenerativeNFT nft, uint256, uint8 trait, uint8 gene) external view override returns (string memory output) {
+        return string(abi.encodePacked(
+            "{\"trait_type\":\"",
+            names[nft][trait],
+            "\",\"value\":\"",
+            options[nft][trait][gene].name,
+            "\"}"
+        ));
+    }
+
+    function renderSVG(IBoringGenerativeNFT nft, uint256, uint8 trait, uint8 gene) external view override returns (string memory output) {
         return options[nft][trait][gene].svg;
     }
 }
