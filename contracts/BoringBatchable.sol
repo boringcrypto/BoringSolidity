@@ -26,6 +26,9 @@ contract BaseBoringBatchable {
         return abi.decode(_returnData, (string)); // All that remains is the revert string
     }
 
+
+    
+
     /// @notice Allows batched call to self (this contract).
     /// @param calls An array of inputs for each call.
     /// @param revertOnFail If True then reverts after a failed call and stops doing further calls.
