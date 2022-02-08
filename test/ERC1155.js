@@ -21,18 +21,22 @@ describe("ERC115", function () {
     })
 
     describe("token creation", function () {
-        // is it supposed to throw when tryin to have initialSupply equal to zero ? 
-
+        // is it supposed to throw when trying to have initialSupply equal to zero ? 
+        // how can I limit the supply are not limit the supply in creation function ? 
         it("should create a token", async function () {
            
             await expect(this.contract.functions["create(uint256,string)"](21000000, "BTC"))
             .to.emit(this.contract, "TransferSingle")
             .withArgs(this.alice.address,ADDRESS_ZERO,ADDRESS_ZERO,1,21000000)
+            .to.emit(this.contract, "URI")
+            .withArgs("BTC", 1)
 
-            // is it ok to have the same URI ? 
+            // is it ok to be able to pass the same for two different token id ? 
             await expect(this.contract.connect(this.bob).functions["create(uint256,string)"](21000000, "WBTC"))
             .to.emit(this.contract, "TransferSingle")
             .withArgs(this.bob.address,ADDRESS_ZERO,ADDRESS_ZERO,2,21000000)
+            .to.emit(this.contract, "URI")
+            .withArgs("WBTC", 2)
 
         })
 
@@ -64,7 +68,7 @@ describe("ERC115", function () {
             await expect(this.contract.connect(this.alice).mint(ADDRESS_ZERO, 1 , 10000)).to.be.revertedWith("No 0 address")
         })
 
-        // i think it should throw when minting value higher than the initial supply no ? 
+        // I think it should throw when minting value higher than the initial supply no ? 
 
         // it("should throws when value is greater than then initialSupply", async function () {
         //     await this.contract.connect(this.alice).mint(this.alice.address, 1 , 210000000)
@@ -125,7 +129,7 @@ describe("ERC115", function () {
 
     describe('balanceofBatch function', function () {
 
-        // don't get why it doesn't work
+        // don't get why it doesn't work the error is the same but maybe the it wasn't reverted. 
         /*
         it ('should throw when one of type of arguments is not an array',  async function () {
             await expect(this.contract.functions["balanceOfBatch(address[],uint256[])"](this.alice.address, [1,2]))
@@ -156,7 +160,6 @@ describe("ERC115", function () {
 
 
         it("should return the number of multiple tokens owned by bob's address", async function () {
-            // hello boring maybe you know a cleaner to test it for array
             const balanceBatch = await this.contract.functions["balanceOfBatch(address[],uint256[])"]([this.bob.address, this.bob.address], [1,2])
             assert.equal(Number(balanceBatch['balances']['0']), 3000)
             assert.equal(Number(balanceBatch['balances']['1']), 4000)
@@ -167,7 +170,6 @@ describe("ERC115", function () {
 
 
         it("should return the number of multiple tokens owned by mulitple address", async function () {
-            // hello boring maybe you know a cleaner to test it for array
             const balanceBatch = await this.contract.functions["balanceOfBatch(address[],uint256[])"]([this.alice.address, this.bob.address], [1,2])
             assert.equal(Number(balanceBatch['balances']['0']), 1000)
             assert.equal(Number(balanceBatch['balances']['1']), 4000)
@@ -198,7 +200,7 @@ describe("ERC115", function () {
 
     describe ("burn function", function (){
 
-        // is it ok to have an operator being able to burn on the behalf of someone else ? 
+        // Is it ok to have an operator being able to burn on the behalf of someone else ? 
 
         it ("alice should be able to burn part of supply of token 1" , async function () {
             await expect(this.contract.connect(this.alice).burn(this.alice.address, 1, 500))
@@ -233,7 +235,7 @@ describe("ERC115", function () {
 
 
     describe("setApprovalForAll", function () {
-        // is it supposed to revert when the operator set approval whereas it is not the owner
+        // Is it supposed to revert when the operator set approval whereas it is not the owner
         // it ("should revert when the operator set approval whereas it is not the owner", async function () {
         //     // right ? 
             
@@ -269,7 +271,7 @@ describe("ERC115", function () {
 
 
     describe("safeTransferFrom", function () {
-        // is it supposed to be mandotary to pass the byte arg it throws when the byte is empty string. 
+        // is it supposed to be mandotary to pass the byte arg ? It throws when the byte is empty string. 
         it ("should throws when transferring to the address zero", async function () {
             await expect(this.contract.connect(this.alice).functions["safeTransferFrom(address,address,uint256,uint256,bytes)"](
                 this.alice.address, ADDRESS_ZERO, 1, 10, "0x")).to.be.revertedWith("No 0 address")
