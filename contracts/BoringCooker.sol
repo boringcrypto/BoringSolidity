@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 
 import "./Domain.sol";
 
+// solhint-disable no-inline-assembly
+// solhint-disable avoid-low-level-calls
+// solhint-disable not-rely-on-time
+
+// This is a work in progress
+
 contract CookTarget {
-    function onCook(address sender, bytes calldata data) public payable virtual returns (bool success, bytes memory result) {
+    function onCook(address, bytes calldata) public payable virtual returns (bool success, bytes memory result) {
         // Check that msg.sender is the BoringCooker. If so, you can trust sender to be verified.
         return (true, "");
     }

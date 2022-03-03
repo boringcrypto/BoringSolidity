@@ -2,7 +2,7 @@
 // Based on code and smartness by Ross Campbell and Keno
 // Uses immutable to store the domain separator to reduce gas usage
 // If the chain id changes due to a fork, the forked chain will calculate on the fly.
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 
 // solhint-disable no-inline-assembly
 
@@ -20,7 +20,7 @@ contract Domain {
         return keccak256(abi.encode(DOMAIN_SEPARATOR_SIGNATURE_HASH, chainId, address(this)));
     }
 
-    constructor() public {
+    constructor() {
         uint256 chainId;
         assembly {
             chainId := chainid()

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 import "./interfaces/IMasterContract.sol";
 
 // solhint-disable no-inline-assembly
@@ -9,6 +9,18 @@ contract BoringFactory {
 
     /// @notice Mapping from clone contracts to their masterContract.
     mapping(address => address) public masterContractOf;
+
+    /// @notice Mapping from masterContract to an array of all clones
+    /// On mainnet events can be used to get this list, but events aren't always easy to retrieve and
+    /// barely work on sidechains. While this adds gas, it makes enumerating all clones much easier.
+    mapping(address => address[]) public clonesOf;
+
+    /// @notice Returns the count of clones that exists for a specific masterContract
+    /// @param masterContract The address of the master contract.
+    /// @return cloneCount total number of clones for the masterContract.
+    function clonesOfCount(address masterContract) public view returns (uint256 cloneCount) {
+        cloneCount = clonesOf[masterContract].length;
+    }
 
     /// @notice Deploys a given master Contract as a clone.
     /// Any ETH transferred with this call is forwarded to the new clone.
@@ -47,6 +59,7 @@ contract BoringFactory {
             }
         }
         masterContractOf[cloneAddress] = masterContract;
+        clonesOf[masterContract].push(cloneAddress);
 
         IMasterContract(cloneAddress).init{value: msg.value}(data);
 

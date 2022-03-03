@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 import "../ERC20.sol";
 
 contract MockERC20 is ERC20WithSupply {
-    constructor(uint256 _initialAmount) public {
-        require(msg.sender != address(0));
+    constructor(uint256 _initialAmount) {
         // Give the creator all initial tokens
         balanceOf[msg.sender] = _initialAmount;
         // Update total supply

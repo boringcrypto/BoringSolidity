@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 
 import "./libraries/BoringAddress.sol";
@@ -27,6 +27,7 @@ abstract contract BoringSingleNFT {
     // Since there is only one NFT, we only track single holder and allowed
     address public hodler;
     address public allowed;
+    // solhint-disable-next-line const-name-snakecase
     uint256 public constant totalSupply = 1;
 
     // operator mappings as per usual

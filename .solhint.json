@@ -2,7 +2,7 @@
   "extends": "solhint:recommended",
   "plugins": ["prettier"],
   "rules": {
-    "func-visibility": ["error",{"ignoreConstructors":false}],
+    "func-visibility": ["error",{"ignoreConstructors":true}],
     "avoid-throw": "error",
     "avoid-suicide": "error",
     "avoid-sha3": "warn",

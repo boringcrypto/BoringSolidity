@@ -1,27 +1,20 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity 0.8.9;
 
 import "./libraries/BoringAddress.sol";
-import "./libraries/BoringMath.sol";
 import "./interfaces/IERC1155.sol";
 import "./interfaces/IERC1155TokenReceiver.sol";
 
-// Written by OreNoMori (https://github.com/Farrabi)
+// Written by OreNoMochi (https://github.com/OreNoMochii)
 
 abstract contract ERC1155 is IERC1155 {
     using BoringAddress for address;
-    using BoringMath for uint256;
-
-    event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
-    event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-    event URI(string value, uint256 indexed id);
 
     // mappings
     mapping(address => mapping(address => bool)) public override isApprovedForAll; // map of operator approval
     mapping(address => mapping(uint256 => uint256)) public override balanceOf; // map of tokens owned by
 
-    function supportsInterface(bytes4 interfaceID) public view override returns (bool) {
+    function supportsInterface(bytes4 interfaceID) public pure override returns (bool) {
         return
             interfaceID == this.supportsInterface.selector || // EIP-165
             interfaceID == 0xd9b67a26; // ERC-1155
@@ -50,7 +43,7 @@ abstract contract ERC1155 is IERC1155 {
     ) internal {
         require(to != address(0), "No 0 address");
 
-        balanceOf[to][id] = balanceOf[to][id].add(value);
+        balanceOf[to][id] += value;
 
         emit TransferSingle(msg.sender, address(0), to, id, value);
     }
@@ -60,7 +53,7 @@ abstract contract ERC1155 is IERC1155 {
         uint256 id,
         uint256 value
     ) internal {
-        balanceOf[from][id] = balanceOf[from][id].sub(value);
+        balanceOf[from][id] += value;
 
         emit TransferSingle(msg.sender, from, address(0), id, value);
     }
@@ -73,8 +66,8 @@ abstract contract ERC1155 is IERC1155 {
     ) internal {
         require(to != address(0), "No 0 address");
 
-        balanceOf[from][id] = balanceOf[from][id].sub(value);
-        balanceOf[to][id] = balanceOf[to][id].add(value);
+        balanceOf[from][id] -= value;
+        balanceOf[to][id] += value;
 
         emit TransferSingle(msg.sender, from, to, id, value);
     }
@@ -90,8 +83,8 @@ abstract contract ERC1155 is IERC1155 {
         for (uint256 i = 0; i < ids.length; i++) {
             uint256 id = ids[i];
             uint256 value = values[i];
-            balanceOf[from][id] = balanceOf[from][id].sub(value);
-            balanceOf[to][id] = balanceOf[to][id].add(value);
+            balanceOf[from][id] -= value;
+            balanceOf[to][id] += value;
         }
 
         emit TransferBatch(msg.sender, from, to, ids, values);

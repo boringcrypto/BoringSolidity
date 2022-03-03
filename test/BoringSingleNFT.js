@@ -350,7 +350,7 @@ describe("BoringSingleNFT", async function () {
             assert.equal(await this.wrongReceiver.tokenId(), 0)
             assert.equal(await this.wrongReceiver.data(), "0x")
 
-            await expect(this.wrongReceiver.returnToken()).to.be.revertedWith("function call to a non-contract account")
+            await expect(this.wrongReceiver.returnToken()).to.be.revertedWith("Transaction reverted without a reason")
         })
     })
 
@@ -524,7 +524,7 @@ describe("BoringSingleNFT", async function () {
             assert.equal(await this.wrongReceiver.tokenId(), 0)
             assert.equal(await this.wrongReceiver.data(), "0x")
 
-            await expect(this.wrongReceiver.returnToken()).to.be.revertedWith("function call to a non-contract account")
+            await expect(this.wrongReceiver.returnToken()).to.be.revertedWith("Transaction reverted without a reason")
         })
     })
 })

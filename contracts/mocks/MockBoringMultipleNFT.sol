@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 import "../BoringMultipleNFT.sol";
 
 contract MockBoringMultipleNFT is BoringMultipleNFT {
-    constructor() public BoringMultipleNFT("Mock", "MK") { 
+    constructor() BoringMultipleNFT("Mock", "MK") { 
         this; // Hide empty code block warning
     }
 
-    function _tokenURI(uint256) internal view override returns (string memory) {
+    function _tokenURI(uint256) internal pure override returns (string memory) {
         return "";
     }
 

@@ -155,7 +155,7 @@ module.exports = {
     eachLine: removeConsoleLog((bre) => bre.network.name !== "hardhat" && bre.network.name !== "localhost"),
   },
   solidity: {
-    version: "0.6.12",
+    version: "0.8.9",
     settings: {
       optimizer: {
         enabled: true,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 import "../libraries/BoringERC20.sol";
 
 contract MockBoringERC20 {
@@ -7,7 +7,7 @@ contract MockBoringERC20 {
 
     IERC20 public token;
 
-    constructor(IERC20 token_) public {
+    constructor(IERC20 token_) {
         token = token_;
     }
 

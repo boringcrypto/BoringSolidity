@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
-import "./BoringMath.sol";
+pragma solidity 0.8.9;
 
 struct Rebase {
     uint128 elastic;
@@ -9,9 +8,6 @@ struct Rebase {
 
 /// @notice A rebasing library using overflow-/underflow-safe math.
 library RebaseLibrary {
-    using BoringMath for uint256;
-    using BoringMath128 for uint128;
-
     /// @notice Calculates the base value in relationship to `elastic` and `total`.
     function toBase(
         Rebase memory total,
@@ -21,9 +17,9 @@ library RebaseLibrary {
         if (total.elastic == 0) {
             base = elastic;
         } else {
-            base = elastic.mul(total.base) / total.elastic;
-            if (roundUp && base.mul(total.elastic) / total.base < elastic) {
-                base = base.add(1);
+            base = elastic * total.base / total.elastic;
+            if (roundUp && base * total.elastic / total.base < elastic) {
+                base++;
             }
         }
     }
@@ -37,9 +33,9 @@ library RebaseLibrary {
         if (total.base == 0) {
             elastic = base;
         } else {
-            elastic = base.mul(total.elastic) / total.base;
-            if (roundUp && elastic.mul(total.base) / total.elastic < base) {
-                elastic = elastic.add(1);
+            elastic = base * total.elastic / total.base;
+            if (roundUp && elastic * total.base / total.elastic < base) {
+                elastic++;
             }
         }
     }
@@ -53,8 +49,8 @@ library RebaseLibrary {
         bool roundUp
     ) internal pure returns (Rebase memory, uint256 base) {
         base = toBase(total, elastic, roundUp);
-        total.elastic = total.elastic.add(elastic.to128());
-        total.base = total.base.add(base.to128());
+        total.elastic += uint128(elastic);
+        total.base += uint128(base);
         return (total, base);
     }
 
@@ -67,8 +63,8 @@ library RebaseLibrary {
         bool roundUp
     ) internal pure returns (Rebase memory, uint256 elastic) {
         elastic = toElastic(total, base, roundUp);
-        total.elastic = total.elastic.sub(elastic.to128());
-        total.base = total.base.sub(base.to128());
+        total.elastic -= uint128(elastic);
+        total.base -= uint128(base);
         return (total, elastic);
     }
 
@@ -78,8 +74,8 @@ library RebaseLibrary {
         uint256 elastic,
         uint256 base
     ) internal pure returns (Rebase memory) {
-        total.elastic = total.elastic.add(elastic.to128());
-        total.base = total.base.add(base.to128());
+        total.elastic += uint128(elastic);
+        total.base += uint128(base);
         return total;
     }
 
@@ -89,20 +85,20 @@ library RebaseLibrary {
         uint256 elastic,
         uint256 base
     ) internal pure returns (Rebase memory) {
-        total.elastic = total.elastic.sub(elastic.to128());
-        total.base = total.base.sub(base.to128());
+        total.elastic -= uint128(elastic);
+        total.base -= uint128(base);
         return total;
     }
 
     /// @notice Add `elastic` to `total` and update storage.
     /// @return newElastic Returns updated `elastic`.
     function addElastic(Rebase storage total, uint256 elastic) internal returns (uint256 newElastic) {
-        newElastic = total.elastic = total.elastic.add(elastic.to128());
+        newElastic = total.elastic += uint128(elastic);
     }
 
     /// @notice Subtract `elastic` from `total` and update storage.
     /// @return newElastic Returns updated `elastic`.
     function subElastic(Rebase storage total, uint256 elastic) internal returns (uint256 newElastic) {
-        newElastic = total.elastic = total.elastic.sub(elastic.to128());
+        newElastic = total.elastic -= uint128(elastic);
     }
 }

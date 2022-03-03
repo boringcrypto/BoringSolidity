@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 import "./BoringMultipleNFT.sol";
 import "./BoringOwnable.sol";
@@ -14,7 +14,7 @@ contract BoringGenerativeNFT is IBoringGenerativeNFT, BoringMultipleNFT, BoringO
         return _traits[index];
     }
 
-    constructor(string memory name, string memory symbol) public BoringMultipleNFT(name, symbol) {
+    constructor(string memory name, string memory symbol) BoringMultipleNFT(name, symbol) {
         this; // Hide empty code block warning
     }
 

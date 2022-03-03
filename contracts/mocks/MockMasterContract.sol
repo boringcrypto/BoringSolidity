@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
+pragma solidity 0.8.9;
 import "../interfaces/IMasterContract.sol";
 import "./MockERC20.sol";
 

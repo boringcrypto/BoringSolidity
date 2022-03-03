@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.6.12;
-import "../libraries/BoringMath.sol";
+pragma solidity 0.8.9;
 import "../libraries/BoringRebase.sol";
 
 contract MockBoringRebase {
-    using BoringMath for uint256;
     using RebaseLibrary for Rebase;
     Rebase public total;
 
-    function set(uint256 elastic, uint256 base) public {
-        total.elastic = elastic.to128();
-        total.base = base.to128();
+    function set(uint128 elastic, uint128 base) public {
+        total.elastic = elastic;
+        total.base = base;
     }
 
     function toBase(uint256 elastic, bool roundUp) public view returns (uint256 base) {

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
+pragma solidity 0.8.9;
 
-pragma solidity >=0.6.0;
+// solhint-disable no-inline-assembly
+// solhint-disable no-empty-blocks
 
 /// @title Base64
 /// @author Brecht Devos - <brecht@loopring.org>

@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.12;
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 
 import "./libraries/BoringAddress.sol";
-import "./libraries/BoringMath.sol";
 import "./interfaces/IERC721TokenReceiver.sol";
 
 // solhint-disable avoid-low-level-calls
@@ -24,7 +23,6 @@ abstract contract BoringMultipleNFT {
     /// This contract is an EIP-721 compliant contract with enumerable support
     /// To optimize for gas, tokenId is sequential and start at 0. Also, tokens can't be removed/burned.
     using BoringAddress for address;
-    using BoringMath for uint256;
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
@@ -32,7 +30,7 @@ abstract contract BoringMultipleNFT {
     string public name;
     string public symbol;
 
-    constructor(string memory name_, string memory symbol_) public {
+    constructor(string memory name_, string memory symbol_) {
         name = name_;
         symbol = symbol_;
     }

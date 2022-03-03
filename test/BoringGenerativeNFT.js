@@ -36,10 +36,13 @@ describe("BoringGenerativeNFT", function () {
           trait7: 0,
           trait8: 0
         }, this.alice.address)
-        const metadata = await this.contract.tokenURI(0)
-        const base64 = ""
-        const text = Buffer.from(base64, 'base64').toString("utf-8")
-        console.log(metadata)
+        const base64 = (await this.contract.tokenURI(0)).substring(29)
+        const json = Buffer.from(base64, 'base64').toString("utf-8")
+        const data = JSON.parse(json)
+        const svg = Buffer.from(data.image.substring(26), 'base64').toString("utf-8")
+
+        //console.log(data)
+        //console.log(svg)
     })
 })
 

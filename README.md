@@ -4,14 +4,6 @@
 
 BoringSolidity is a collection of general purpose Solidity contracts that have been reasonably optimized, reviewed and tested. Still, they come with no guarantees and are provided as-is.
 
-## BoringMath Library
-
-Once we can move to Solidity 0.8.0 we won't need this anymore, but until then, this library helps protect against over and under flows. Also contains some support for uint128.
-
-There is no div function because never solidity versions will revert on a division by 0.
-
-BoringMath128 does not contain a `mul` function on purpose. To avoid overflows during calculations, it's encouraged to convert to uint256 first.
-
 ## BoringOwnable
 
 This is a combination of the well known Ownable and Claimable patterns. It's streamlined to reduce the amount of functions exposed for gas savings.

@@ -38,9 +38,7 @@ describe("BoringFactory", function () {
 
     it("Cannot create the same clone twice", async function () {
         initData = await this.master.getInitData(1234)
-        await expect(this.contract.deploy(this.master.address, initData, true)).to.be.revertedWith(
-            "Transaction reverted: function call to a non-contract account"
-        )
+        await expect(this.contract.deploy(this.master.address, initData, true)).to.be.reverted
     })
 
     it("Reverts on masterContract address 0", async function () {
@@ -54,6 +52,6 @@ describe("BoringFactory", function () {
     })
 
     it("Reverts on masterContract with wrong data", async function () {
-        await expect(this.contract.deploy(this.master.address, "0x", true)).to.revertedWith("Transaction reverted without a reason")
+        await expect(this.contract.deploy(this.master.address, "0x", true)).to.be.reverted
     })
 })
