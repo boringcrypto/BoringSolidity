@@ -11,4 +11,10 @@ library BoringAddress {
         }
         return size > 0;
     }
+
+    function sendNative(address to, uint256 amount) internal {
+        // solhint-disable-next-line avoid-low-level-calls
+        (bool success, ) = to.call{value: amount}("");
+        require(success, "BoringAddress: transfer failed");        
+    }
 }

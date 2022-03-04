@@ -17,7 +17,8 @@ abstract contract ERC1155 is IERC1155 {
     function supportsInterface(bytes4 interfaceID) public pure override returns (bool) {
         return
             interfaceID == this.supportsInterface.selector || // EIP-165
-            interfaceID == 0xd9b67a26; // ERC-1155
+            interfaceID == 0xd9b67a26 || // ERC-1155
+            interfaceID == 0x0e89341c; // EIP-1155 Metadata
     }
 
     function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
@@ -139,5 +140,9 @@ abstract contract ERC1155 is IERC1155 {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
+    }
+
+    function uri(uint256 /*assetId*/) external pure returns (string memory) {
+        return "";
     }
 }
