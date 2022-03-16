@@ -46,7 +46,7 @@ function createInterface(name) {
         let header = [];
         let contracts = [];
         header.push("// SPDX-License-Identifier: MIT");
-        header.push("pragma solidity 0.6.12;");
+        header.push("pragma solidity ^0.8.0;");
         lines.push("");
         lines.push("interface I" + name + " {");
         for (let i in abi) {
