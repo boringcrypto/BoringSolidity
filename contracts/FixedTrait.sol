@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 import "./interfaces/IBoringGenerativeNFT.sol";
 
@@ -25,18 +25,21 @@ contract FixedTrait is ITrait {
         return bytes4(keccak256("addData(address,uint8,bytes)"));
     }
 
-    function renderTrait(IBoringGenerativeNFT nft, uint256, uint8 trait, uint8 gene) external view override returns (string memory output) {
-        return string(abi.encodePacked(
-            "{\"trait_type\":\"",
-            names[nft][trait],
-            "\",\"value\":\"",
-            options[nft][trait][gene].name,
-            "\"}"
-        ));
+    function renderTrait(
+        IBoringGenerativeNFT nft,
+        uint256,
+        uint8 trait,
+        uint8 gene
+    ) external view override returns (string memory output) {
+        return string(abi.encodePacked('{"trait_type":"', names[nft][trait], '","value":"', options[nft][trait][gene].name, '"}'));
     }
 
-    function renderSVG(IBoringGenerativeNFT nft, uint256, uint8 trait, uint8 gene) external view override returns (string memory output) {
+    function renderSVG(
+        IBoringGenerativeNFT nft,
+        uint256,
+        uint8 trait,
+        uint8 gene
+    ) external view override returns (string memory output) {
         return options[nft][trait][gene].svg;
     }
 }
-

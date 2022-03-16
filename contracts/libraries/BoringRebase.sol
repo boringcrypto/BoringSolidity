@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 struct Rebase {
     uint128 elastic;
@@ -17,8 +17,8 @@ library RebaseLibrary {
         if (total.elastic == 0) {
             base = elastic;
         } else {
-            base = elastic * total.base / total.elastic;
-            if (roundUp && base * total.elastic / total.base < elastic) {
+            base = (elastic * total.base) / total.elastic;
+            if (roundUp && (base * total.elastic) / total.base < elastic) {
                 base++;
             }
         }
@@ -33,8 +33,8 @@ library RebaseLibrary {
         if (total.base == 0) {
             elastic = base;
         } else {
-            elastic = base * total.elastic / total.base;
-            if (roundUp && elastic * total.base / total.elastic < base) {
+            elastic = (base * total.elastic) / total.base;
+            if (roundUp && (elastic * total.base) / total.elastic < base) {
                 elastic++;
             }
         }

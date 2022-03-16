@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 // solhint-disable no-inline-assembly
 
@@ -15,6 +15,6 @@ library BoringAddress {
     function sendNative(address to, uint256 amount) internal {
         // solhint-disable-next-line avoid-low-level-calls
         (bool success, ) = to.call{value: amount}("");
-        require(success, "BoringAddress: transfer failed");        
+        require(success, "BoringAddress: transfer failed");
     }
 }

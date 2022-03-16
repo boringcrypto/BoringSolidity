@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
 import "./libraries/BoringAddress.sol";
@@ -175,7 +175,7 @@ abstract contract BoringMultipleNFT {
         return tokensOf[owner][index];
     }
 
-    // 
+    //
     function _mint(address owner, TraitsData memory data) internal returns (uint256 tokenId) {
         tokenId = totalSupply;
         _transferBase(tokenId, address(0), owner, data);

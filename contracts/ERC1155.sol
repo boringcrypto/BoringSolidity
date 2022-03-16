@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 import "./libraries/BoringAddress.sol";
 import "./interfaces/IERC1155.sol";
@@ -21,12 +21,7 @@ abstract contract ERC1155 is IERC1155 {
             interfaceID == 0x0e89341c; // EIP-1155 Metadata
     }
 
-    function balanceOfBatch(address[] calldata owners, uint256[] calldata ids)
-        external
-        view
-        override
-        returns (uint256[] memory balances)
-    {
+    function balanceOfBatch(address[] calldata owners, uint256[] calldata ids) external view override returns (uint256[] memory balances) {
         uint256 len = owners.length;
         require(len == ids.length, "ERC1155: Length mismatch");
 
@@ -142,7 +137,9 @@ abstract contract ERC1155 is IERC1155 {
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
-    function uri(uint256 /*assetId*/) external pure returns (string memory) {
+    function uri(
+        uint256 /*assetId*/
+    ) external pure returns (string memory) {
         return "";
     }
 }

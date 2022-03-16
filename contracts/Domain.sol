@@ -2,7 +2,7 @@
 // Based on code and smartness by Ross Campbell and Keno
 // Uses immutable to store the domain separator to reduce gas usage
 // If the chain id changes due to a fork, the forked chain will calculate on the fly.
-pragma solidity 0.8.9;
+pragma solidity ^0.8.0;
 
 // solhint-disable no-inline-assembly
 

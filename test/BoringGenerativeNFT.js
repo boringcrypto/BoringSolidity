@@ -8,7 +8,7 @@ describe("BoringGenerativeNFT", function () {
         await prepare(this, ["BoringGenerativeNFT", "FixedTrait"])
         await deploy(this, [
             ["contract", this.BoringGenerativeNFT, ["Gatos", "GATO"]],
-            ["fixed", this.FixedTrait]
+            ["fixed", this.FixedTrait],
         ])
         await this.contract.addTrait("Head", this.fixed.address)
         await this.contract.addTrait("Eyes", this.fixed.address)
@@ -25,30 +25,31 @@ describe("BoringGenerativeNFT", function () {
     })
 
     it("Mint token", async function () {
-        await this.contract.mint({
-          trait0: 1,
-          trait1: 2,
-          trait2: 0,
-          trait3: 0,
-          trait4: 0,
-          trait5: 0,
-          trait6: 0,
-          trait7: 0,
-          trait8: 0
-        }, this.alice.address)
+        await this.contract.mint(
+            {
+                trait0: 1,
+                trait1: 2,
+                trait2: 0,
+                trait3: 0,
+                trait4: 0,
+                trait5: 0,
+                trait6: 0,
+                trait7: 0,
+                trait8: 0,
+            },
+            this.alice.address
+        )
         const base64 = (await this.contract.tokenURI(0)).substring(29)
-        const json = Buffer.from(base64, 'base64').toString("utf-8")
+        const json = Buffer.from(base64, "base64").toString("utf-8")
         const data = JSON.parse(json)
-        const svg = Buffer.from(data.image.substring(26), 'base64').toString("utf-8")
+        const svg = Buffer.from(data.image.substring(26), "base64").toString("utf-8")
 
         //console.log(data)
         //console.log(svg)
     })
 })
 
-
-
-    /*function renderHead(uint8 color) private view returns (string memory) {
+/*function renderHead(uint8 color) private view returns (string memory) {
         string[8] memory colorList = ["9b9c9e", "ffffff", "222222", "6b6c6e", "abcdef", "557799", "887755", "aa0000"];
         return
             string(
