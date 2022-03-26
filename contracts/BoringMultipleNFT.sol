@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
-import "./libraries/BoringAddress.sol";
+import "./interfaces/IERC721.sol";
 import "./interfaces/IERC721TokenReceiver.sol";
+import "./libraries/BoringAddress.sol";
 
 // solhint-disable avoid-low-level-calls
 
@@ -19,13 +20,10 @@ struct TraitsData {
     uint8 trait8;
 }
 
-abstract contract BoringMultipleNFT {
+abstract contract BoringMultipleNFT is IERC721, IERC721Metadata, IERC721Enumerable {
     /// This contract is an EIP-721 compliant contract with enumerable support
     /// To optimize for gas, tokenId is sequential and start at 0. Also, tokens can't be removed/burned.
     using BoringAddress for address;
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     string public name;
     string public symbol;

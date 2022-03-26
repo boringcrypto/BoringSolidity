@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 pragma experimental ABIEncoderV2;
 
+import "./interfaces/IERC721.sol";
 import "./libraries/BoringAddress.sol";
 
 // solhint-disable avoid-low-level-calls
@@ -15,13 +16,9 @@ interface ERC721TokenReceiver {
     ) external returns (bytes4);
 }
 
-abstract contract BoringSingleNFT {
+abstract contract BoringSingleNFT is IERC721, IERC721Metadata, IERC721Enumerable {
     /// This contract is an EIP-721 compliant contract that holds only a single NFT (totalSupply = 1)
     using BoringAddress for address;
-
-    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
-    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     // hodler must be set in derived contract
     // Since there is only one NFT, we only track single holder and allowed
