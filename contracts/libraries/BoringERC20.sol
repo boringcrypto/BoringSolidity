@@ -9,6 +9,7 @@ library BoringERC20 {
     bytes4 private constant SIG_NAME = 0x06fdde03; // name()
     bytes4 private constant SIG_DECIMALS = 0x313ce567; // decimals()
     bytes4 private constant SIG_BALANCE_OF = 0x70a08231; // balanceOf(address)
+    bytes4 private constant SIG_TOTALSUPPLY = 0x18160ddd; // balanceOf(address)
     bytes4 private constant SIG_TRANSFER = 0xa9059cbb; // transfer(address,uint256)
     bytes4 private constant SIG_TRANSFER_FROM = 0x23b872dd; // transferFrom(address,address,uint256)
 
@@ -62,6 +63,15 @@ library BoringERC20 {
         (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_BALANCE_OF, to));
         require(success && data.length >= 32, "BoringERC20: BalanceOf failed");
         amount = abi.decode(data, (uint256));
+    }
+
+    /// @notice Provides a gas-optimized totalSupply to avoid a redundant extcodesize check in addition to the returndatasize check.
+    /// @param token The address of the ERC-20 token.
+    /// @return totalSupply The token totalSupply.
+    function safeTotalSupply(IERC20 token) internal view returns (uint256 totalSupply) {
+        (bool success, bytes memory data) = address(token).staticcall(abi.encodeWithSelector(SIG_TOTALSUPPLY));
+        require(success && data.length >= 32, "BoringERC20: totalSupply failed");
+        totalSupply = abi.decode(data, (uint256));
     }
 
     /// @notice Provides a safe ERC20.transfer version for different ERC-20 implementations.
