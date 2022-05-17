@@ -21,11 +21,7 @@ contract Domain {
     }
 
     constructor() {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        _DOMAIN_SEPARATOR = _calculateDomainSeparator(DOMAIN_SEPARATOR_CHAIN_ID = chainId);
+        _DOMAIN_SEPARATOR = _calculateDomainSeparator(DOMAIN_SEPARATOR_CHAIN_ID = block.chainid);
     }
 
     /// @dev Return the DOMAIN_SEPARATOR
@@ -33,11 +29,7 @@ contract Domain {
     // with the desired public name, such as DOMAIN_SEPARATOR or domainSeparator.
     // solhint-disable-next-line func-name-mixedcase
     function _domainSeparator() internal view returns (bytes32) {
-        uint256 chainId;
-        assembly {
-            chainId := chainid()
-        }
-        return chainId == DOMAIN_SEPARATOR_CHAIN_ID ? _DOMAIN_SEPARATOR : _calculateDomainSeparator(chainId);
+        return block.chainid == DOMAIN_SEPARATOR_CHAIN_ID ? _DOMAIN_SEPARATOR : _calculateDomainSeparator(block.chainid);
     }
 
     function _getDigest(bytes32 dataHash) internal view returns (bytes32 digest) {
