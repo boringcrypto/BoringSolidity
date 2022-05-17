@@ -16,7 +16,7 @@ interface ERC721TokenReceiver {
     ) external returns (bytes4);
 }
 
-abstract contract BoringSingleNFT is IERC721, IERC721Metadata, IERC721Enumerable {
+abstract contract BoringSingleNFT is IERC721, IERC721Metadata {
     /// This contract is an EIP-721 compliant contract that holds only a single NFT (totalSupply = 1)
     using BoringAddress for address;
 
