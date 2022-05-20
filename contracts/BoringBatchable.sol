@@ -12,17 +12,20 @@ pragma experimental ABIEncoderV2;
 import "./interfaces/IERC20.sol";
 
 contract BaseBoringBatchable {
+    error BatchError(bytes innerError);
+
     /// @dev Helper function to extract a useful revert message from a failed call.
     /// If the returned data is malformed or not correctly abi encoded then this call can fail itself.
     function _getRevertMsg(bytes memory _returnData) internal pure returns (string memory) {
-        // If the _res length is less than 68, then the transaction failed silently (without a revert message)
-        if (_returnData.length < 68) return "Transaction reverted silently";
+        // If the _res length is less than 68, then
+        // the transaction failed with custom error or silently (without a revert message)
+        if (_returnData.length < 68) revert BatchError(_returnData);
 
         assembly {
             // Slice the sighash.
             _returnData := add(_returnData, 0x04)
         }
-        return abi.decode(_returnData, (string)); // All that remains is the revert string
+        revert(abi.decode(_returnData, (string))); // All that remains is the revert string
     }
 
     /// @notice Allows batched call to self (this contract).
@@ -36,7 +39,7 @@ contract BaseBoringBatchable {
         for (uint256 i = 0; i < calls.length; i++) {
             (bool success, bytes memory result) = address(this).delegatecall(calls[i]);
             if (!success && revertOnFail) {
-                revert(_getRevertMsg(result));
+                _getRevertMsg(result);
             }
         }
     }
