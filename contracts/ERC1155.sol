@@ -76,6 +76,7 @@ abstract contract ERC1155 is IERC1155 {
     ) internal {
         require(to != address(0), "No 0 address");
 
+
         for (uint256 i = 0; i < ids.length; i++) {
             uint256 id = ids[i];
             uint256 value = values[i];
