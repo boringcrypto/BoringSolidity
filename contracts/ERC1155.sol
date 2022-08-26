@@ -1,18 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./libraries/BoringAddress.sol";
 import "./interfaces/IERC1155.sol";
 import "./interfaces/IERC1155TokenReceiver.sol";
+import "./libraries/BoringAddress.sol";
 
-// Written by OreNoMochi (https://github.com/OreNoMochii)
+// Written by OreNoMochi (https://github.com/OreNoMochii), BoringCrypto
 
-abstract contract ERC1155 is IERC1155 {
+contract ERC1155 is IERC1155 {
     using BoringAddress for address;
 
     // mappings
     mapping(address => mapping(address => bool)) public override isApprovedForAll; // map of operator approval
     mapping(address => mapping(uint256 => uint256)) public override balanceOf; // map of tokens owned by
+    mapping(uint256 => uint256) public totalSupply; // totalSupply per token
 
     function supportsInterface(bytes4 interfaceID) public pure override returns (bool) {
         return
@@ -40,6 +41,7 @@ abstract contract ERC1155 is IERC1155 {
         require(to != address(0), "No 0 address");
 
         balanceOf[to][id] += value;
+        totalSupply[id] += value;
 
         emit TransferSingle(msg.sender, address(0), to, id, value);
     }
@@ -49,7 +51,10 @@ abstract contract ERC1155 is IERC1155 {
         uint256 id,
         uint256 value
     ) internal {
-        balanceOf[from][id] += value;
+        require(from != address(0), "No 0 address");
+
+        balanceOf[from][id] -= value;
+        totalSupply[id] -= value;
 
         emit TransferSingle(msg.sender, from, address(0), id, value);
     }
@@ -86,7 +91,7 @@ abstract contract ERC1155 is IERC1155 {
         emit TransferBatch(msg.sender, from, to, ids, values);
     }
 
-    function _requireTransferAllowed(address from) internal view {
+    function _requireTransferAllowed(address from) internal view virtual {
         require(from == msg.sender || isApprovedForAll[from][msg.sender] == true, "Transfer not allowed");
     }
 
@@ -131,7 +136,7 @@ abstract contract ERC1155 is IERC1155 {
         }
     }
 
-    function setApprovalForAll(address operator, bool approved) external override {
+    function setApprovalForAll(address operator, bool approved) external virtual override {
         isApprovedForAll[msg.sender][operator] = approved;
 
         emit ApprovalForAll(msg.sender, operator, approved);
@@ -139,7 +144,7 @@ abstract contract ERC1155 is IERC1155 {
 
     function uri(
         uint256 /*assetId*/
-    ) external pure returns (string memory) {
+    ) external view virtual returns (string memory) {
         return "";
     }
 }
