@@ -15,7 +15,7 @@ contract ERC1155 is IERC1155 {
     mapping(address => mapping(uint256 => uint256)) public override balanceOf; // map of tokens owned by
     mapping(uint256 => uint256) public totalSupply; // totalSupply per token
 
-    function supportsInterface(bytes4 interfaceID) public pure override returns (bool) {
+    function supportsInterface(bytes4 interfaceID) public pure override virtual returns (bool) {
         return
             interfaceID == this.supportsInterface.selector || // EIP-165
             interfaceID == 0xd9b67a26 || // ERC-1155
